@@ -1,6 +1,7 @@
 architecture:
   model: KPCONV #KPCONV or SPVCNN
   type: KPFCNN #Config to fetch
+  n_features: 1
 trainer:
   epoch: 500000
   batch_size: 1
