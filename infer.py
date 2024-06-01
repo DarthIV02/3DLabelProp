@@ -63,11 +63,11 @@ if __name__ == "__main__":
         raise  NameError('model not supported')
 
     valid_dataset = InferenceDataset(cfg,train_set,val_set,model,model_information)
-    try:
-        ius, miu = valid_dataset.compute_results()
-    except:
-        valid_dataset.compute_dataset()
-        ius, miu = valid_dataset.compute_results()
+    #try:
+    #    ius, miu = valid_dataset.compute_results()
+    #except:
+    valid_dataset.compute_dataset()
+    ius, miu = valid_dataset.compute_results()
     print(ius)
     print(miu)
 
