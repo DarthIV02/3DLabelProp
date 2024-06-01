@@ -153,6 +153,7 @@ class InferenceDataset:
 
     def compute_sequence(self,seq_number):
         if osp.exists(osp.join(self.save,self.trg_datast.sequence[seq_number])):
+            print("Skip")
             return True 
         os.makedirs(osp.join(self.save,self.trg_datast.sequence[seq_number]),exist_ok=True)
 
