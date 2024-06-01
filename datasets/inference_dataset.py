@@ -245,4 +245,5 @@ class InferenceDataset:
                 to_save[:,0] = accumulated_pointcloud[-len(pointcloud):,4].astype(np.int32)
                 to_save[:,-1] = label.astype(np.int32)
                 np.save(osp.join(self.save, seq, str(frame)+'.npy'), to_save)
+                print(osp.join(self.save, seq, str(frame)+'.npy'))
 
