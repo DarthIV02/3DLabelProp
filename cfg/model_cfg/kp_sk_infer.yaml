@@ -19,5 +19,5 @@ trainer:
   resume: 0
 logger:
   run_name: debug
-  save_path: ./results
-  model_name: kp_sk.pth
+  save_path: ../../root/main/results
+  model_name: best_kp_sk.pth

@@ -1,6 +1,6 @@
 data:
   name: nuscenes
-  path: /media/julessanchez/HDD/nuscenes
+  path: /root/main/dataset-nuscenes/nuscenes
   traj_folder : new_traj_nuscenes
   
 labels: 
