@@ -13,7 +13,7 @@ args = parser.parse_args()
 cfg = OmegaConf.load(args.config)
 cluster_cfg = OmegaConf.load(cfg.cluster_cfg)
 model_cfg = OmegaConf.load(cfg.model_cfg)
-print(model_cfg.__dict__)
+print(model_cfg.architecture.__dict__)
 cfg = OmegaConf.merge(cfg,cluster_cfg,model_cfg)
 if __name__ == "__main__":
     #Get info relative to the set
