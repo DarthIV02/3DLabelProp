@@ -102,7 +102,7 @@ class InferenceDataset:
         self.model = model 
         if torch.cuda.is_available():
             self.device = torch.device("cuda:0")
-            checkpoint = torch.load(os.path.join(self.config.logger.save_path,"best_mIoU_"+self.config.logger.model_name))
+            checkpoint = torch.load(os.path.join(self.config.logger.save_path,self.config.logger.model_name))
         else:
             self.device = torch.device("cpu") 
             checkpoint = torch.load(os.path.join(self.config.logger.save_path,"best_mIoU_"+self.config.logger.model_name), map_location=self.device)
