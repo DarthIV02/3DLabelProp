@@ -13,7 +13,6 @@ args = parser.parse_args()
 cfg = OmegaConf.load(args.config)
 cluster_cfg = OmegaConf.load(cfg.cluster_cfg)
 model_cfg = OmegaConf.load(cfg.model_cfg)
-print(model_cfg.architecture.__dict__)
 cfg = OmegaConf.merge(cfg,cluster_cfg,model_cfg)
 if __name__ == "__main__":
     #Get info relative to the set
@@ -45,7 +44,6 @@ if __name__ == "__main__":
     if cfg.architecture.model == "KPCONV":
         module = importlib.import_module('models.kpconv.kpconv')
         model_information = getattr(module, cfg.architecture.type)()
-        
         model_information.num_classes = train_set.get_n_label()
         model_information.ignore_label = -1
         model_information.in_features_dim = model_cfg.architecture.n_features
