@@ -1,7 +1,7 @@
 # This file is covered by the LICENSE file in the root of this project.
 data:
   name: semantickitti
-  path: /root/main/dataset-kitti-2/dataset/sequences
+  path: /root/main/dataset-kitti-2/
   traj_folder : new_traj_semantickitti
 
 labels: 
