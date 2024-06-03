@@ -218,8 +218,8 @@ class InferenceDataset:
 
                 accumulated_pointcloud = np.vstack((accumulated_pointcloud,pointcloud))
                 print("4: ", accumulated_confidence.shape, "\n")
-                print("zeros: ", np.zeros((len(pointcloud), 1)).shape, "\n")
-                accumulated_confidence = np.concatenate((accumulated_confidence,np.zeros((len(pointcloud), 1))))
+                print("zeros: ", np.zeros(len(pointcloud)).shape, "\n")
+                accumulated_confidence = np.concatenate((accumulated_confidence,np.zeros(len(pointcloud))))
 
                 acc_label = np.copy(accumulated_pointcloud[:,4].astype(np.int32))
                 acc_label, new_conf = compute_labels(accumulated_pointcloud, acc_label, accumulated_confidence, len(pointcloud), self.config.sequence.voxel_size, self.n_label, self.config.source, self.config.sequence.dist_prop)
