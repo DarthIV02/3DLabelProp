@@ -34,9 +34,13 @@ if __name__ == "__main__":
     elif cfg.target == "semanticposs":
         target_data_cfg = OmegaConf.load(osp.join(cfg.data_cfg_path,"semanticposs.yaml"))
         val_set = SemanticPOSS(target_data_cfg,'valid')
+    elif cfg.target == "semantickitti-nuscenes":
+        target_data_cfg = OmegaConf.load(osp.join(cfg.data_cfg_path,"semantic-kitti-nuscenes.yaml"))
+        val_set = SemanticKITTI_Nuscenes(target_data_cfg,'valid')
     elif "pandaset" in cfg.target:
         target_data_cfg = OmegaConf.load(osp.join(cfg.data_cfg_path,cfg.target+".yaml"))
         val_set = Pandaset(target_data_cfg,'valid')
+    
     else:
         raise  NameError('target dataset not supported')
 
