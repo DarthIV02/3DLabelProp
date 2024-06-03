@@ -13,16 +13,13 @@ try:
 except:
     import cpp_wrappers.cpp_subsampling.grid_subsampling as cpp_subsampling
     def grid_subsample(accumulated_pointcloud, accumulated_confidence, vox_size):
-        print("1: ", accumulated_confidence.shape)
         accumulated_confidence = accumulated_confidence.reshape((accumulated_confidence.shape[0], 1))
         _, fts, lbls = cpp_subsampling.subsample(accumulated_pointcloud[:,:3].astype(np.float32),
                                                 features=np.hstack((accumulated_pointcloud,accumulated_confidence)).astype(np.float32),
                                                 classes = accumulated_pointcloud[:,4].astype(np.int32).reshape(-1,1),
                                                 sampleDl=vox_size,
                                                 verbose=False)
-        print("2: ", accumulated_confidence.shape)
         accumulated_confidence = accumulated_confidence.reshape((accumulated_confidence.shape[0]))
-        print("3: ", accumulated_confidence.shape)
         accumulated_pointcloud = fts[:,:-1]
         accumulated_pointcloud[:,4] = lbls.reshape(-1)
         accumulated_confidence = fts[:,-1].reshape(-1,1)
@@ -221,7 +218,7 @@ class InferenceDataset:
 
                 accumulated_pointcloud = np.vstack((accumulated_pointcloud,pointcloud))
                 print("4: ", accumulated_pointcloud.shape)
-                print(np.zeros(len(pointcloud)).shape)
+                print("zeros: ", np.zeros(len(pointcloud)).shape)
                 accumulated_confidence = np.concatenate((accumulated_confidence,np.zeros(len(pointcloud))))
 
                 acc_label = np.copy(accumulated_pointcloud[:,4].astype(np.int32))
