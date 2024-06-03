@@ -21,6 +21,7 @@ except:
                                                 classes = accumulated_pointcloud[:,4].astype(np.int32).reshape(-1,1),
                                                 sampleDl=vox_size,
                                                 verbose=False)
+        accumulated_confidence = accumulated_confidence.reshape((accumulated_confidence.shape[0]))
         accumulated_pointcloud = fts[:,:-1]
         accumulated_pointcloud[:,4] = lbls.reshape(-1)
         accumulated_confidence = fts[:,-1].reshape(-1,1)
