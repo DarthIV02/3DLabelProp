@@ -217,8 +217,8 @@ class InferenceDataset:
                     accumulated_confidence = accumulated_confidence[norm_acc<self.config.sequence.limit_GT]
 
                 accumulated_pointcloud = np.vstack((accumulated_pointcloud,pointcloud))
-                print("4: ", accumulated_pointcloud.shape)
-                print("zeros: ", np.zeros((len(pointcloud), 1)).shape)
+                print("4: ", accumulated_confidence.shape, "\n")
+                print("zeros: ", np.zeros((len(pointcloud), 1)).shape, "\n")
                 accumulated_confidence = np.concatenate((accumulated_confidence,np.zeros((len(pointcloud), 1))))
 
                 acc_label = np.copy(accumulated_pointcloud[:,4].astype(np.int32))
