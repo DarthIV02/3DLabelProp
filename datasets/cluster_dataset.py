@@ -233,6 +233,7 @@ class ClusterDataset(torch.utils.data.Dataset):
                     accumulated_confidence = accumulated_confidence[norm_acc<self.config.sequence.limit_GT]
 
                 accumulated_pointcloud = np.vstack((accumulated_pointcloud,pointcloud))
+                accumulated_confidence = accumulated_confidence.reshape((accumulated_confidence.shape[0]))
                 accumulated_confidence = np.concatenate((accumulated_confidence,np.zeros(len(pointcloud))))
 
                 acc_label = np.copy(accumulated_pointcloud[:,4].astype(np.int32))
