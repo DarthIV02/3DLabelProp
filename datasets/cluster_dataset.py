@@ -13,6 +13,7 @@ try:
 except:
     import cpp_wrappers.cpp_subsampling.grid_subsampling as cpp_subsampling
     def grid_subsample(accumulated_pointcloud, accumulated_confidence, vox_size):
+        accumulated_confidence = accumulated_confidence.reshape((accumulated_confidence.shape[0], 1))
         _, fts, lbls = cpp_subsampling.subsample(accumulated_pointcloud[:,:3].astype(np.float32),
                                                 features=np.hstack((accumulated_pointcloud,accumulated_confidence)).astype(np.float32),
                                                 classes = accumulated_pointcloud[:,4].astype(np.int32).reshape(-1,1),
