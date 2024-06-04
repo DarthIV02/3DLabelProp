@@ -5,8 +5,8 @@ echo Y | apt-get install libblas-dev
 echo Y | apt-get install libarmadillo-dev
 conda create --name 3DLabelProp python=3.7
 conda activate 3DLabelProp
-cd /home
-git clone https://github.com/DarthIV02/3DLabelProp.git
+#cd /home
+#git clone https://github.com/DarthIV02/3DLabelProp.git
 cd 3DLabelProp/
 echo Y | pip install -r requirements.txt
 echo Y | conda install pytorch==1.7.1 torchvision torchaudio cudatoolkit=11.0 -c pytorch

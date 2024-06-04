@@ -24,11 +24,11 @@ spec:
         resources:
           limits:
             nvidia.com/gpu: "1"
-            memory: "8G"
+            memory: "32G"
             cpu: "1"
             ephemeral-storage: "64Gi"
           requests:
-             memory: "8G"
+             memory: "32G"
              cpu: "1"
              ephemeral-storage: "64Gi"
       volumes:
