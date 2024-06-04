@@ -3,8 +3,8 @@ echo Y | apt -y install python3-pybind11
 echo Y | apt-get install liblapack-dev
 echo Y | apt-get install libblas-dev
 echo Y | apt-get install libarmadillo-dev
-conda create --name 3DLabelProp python=3.7
-conda activate 3DLabelProp
+#conda create --name 3DLabelProp python=3.7
+#conda activate 3DLabelProp
 #cd /home
 #git clone https://github.com/DarthIV02/3DLabelProp.git
 #cd 3DLabelProp/

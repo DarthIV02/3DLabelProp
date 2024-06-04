@@ -24,13 +24,13 @@ spec:
         resources:
           limits:
             nvidia.com/gpu: "1"
-            memory: "32G"
+            memory: "8G"
             cpu: "1"
-            ephemeral-storage: "64Gi"
+            ephemeral-storage: "32Gi"
           requests:
-             memory: "32G"
+             memory: "8G"
              cpu: "1"
-             ephemeral-storage: "64Gi"
+             ephemeral-storage: "32Gi"
       volumes:
         - name: ivannia-volume
           persistentVolumeClaim:
