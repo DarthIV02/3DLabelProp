@@ -162,7 +162,7 @@ class ClusterDataset(torch.utils.data.Dataset):
             os.makedirs(osp.join(self.cluster_path, self.dataset.split),exist_ok=True)
             i = 0
             for s in tqdm(range(len(self.dataset.sequence))):
-                for k in range(self.dataset.get_size_seq(s)):
+                for k in tqdm(range(self.dataset.get_size_seq(s))):
                     for l in range(self.config.cluster.n_centroids):
                         clust = self.get_cluster(s,k,l)
                         if clust is None:
