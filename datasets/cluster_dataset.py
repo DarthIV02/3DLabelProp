@@ -174,7 +174,7 @@ class ClusterDataset(torch.utils.data.Dataset):
             print("New dir: ", osp.join(self.cluster_path, self.dataset.split))
             i = 0
             for s in tqdm(range(len(self.dataset.sequence))):
-                if s in ranges:
+                if s in ranges[worker_id]:
                     for k in tqdm(range(self.dataset.get_size_seq(s))):
                         for l in range(self.config.cluster.n_centroids):
                             clust = self.get_cluster(s,k,l)
