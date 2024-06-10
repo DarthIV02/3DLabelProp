@@ -5,7 +5,7 @@ metadata:
   labels:
     k8s-app: label-prop
 spec:
-  replicas: 1
+  replicas: 7
   selector:
     matchLabels:
       k8s-app: label-prop

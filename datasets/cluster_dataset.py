@@ -170,11 +170,14 @@ class ClusterDataset(torch.utils.data.Dataset):
             np.save(seq_stat_file, self.datalist)
 
     def generate_dataset(self):
-        print("Sequences: ", len(self.dataset.sequence))
-        print(self.dataset.sequence)
-        x = input("Enter: ")
-        for i in tqdm(range(len(self.dataset.sequence)),desc="Processing dataset "+str(self.config.source)):
+        workers = 7
+        worker_id = 0
+        start = worker_id * 100
+        end = start + (len(self.dataset.sequence)/workers)
+        
+        for i in tqdm(range(start, end),desc="Processing dataset "+str(self.config.source)):
             self.generate_sequence(i)
+        x = input("Enter")
 
     def generate_sequence(self,seq_number):
         if osp.exists(osp.join(self.cluster_path,self.dataset.sequence[seq_number])):
