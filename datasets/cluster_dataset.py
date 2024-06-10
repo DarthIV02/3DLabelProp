@@ -3,6 +3,7 @@ import torch
 import os 
 import os.path as osp 
 from utils.slam import *
+from tqdm import tqdm
 try:
     from torchsparse.utils.quantize import sparse_quantize
     def grid_subsample(accumulated_pointcloud,accumulated_confidence,vox_size):
@@ -148,6 +149,7 @@ class ClusterDataset(torch.utils.data.Dataset):
 
     def init_weight(self):
         seq_stat_file = osp.join(self.cluster_path, self.dataset.split,'weight_stats_cluster.npy')
+        print(seq_stat_file)
         if osp.exists(seq_stat_file):
             with open(seq_stat_file, 'rb') as f:
                 self.datalist = np.load(f)
@@ -159,7 +161,7 @@ class ClusterDataset(torch.utils.data.Dataset):
             self.datalist = np.zeros((self.total, self.n_label+1))
             os.makedirs(osp.join(self.cluster_path, self.dataset.split),exist_ok=True)
             i = 0
-            for s in range(len(self.dataset.sequence)):
+            for s in tqdm(range(len(self.dataset.sequence))):
                 for k in range(self.dataset.get_size_seq(s)):
                     for l in range(self.config.cluster.n_centroids):
                         clust = self.get_cluster(s,k,l)
