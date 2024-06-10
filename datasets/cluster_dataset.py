@@ -121,7 +121,6 @@ class ClusterDataset(torch.utils.data.Dataset):
             return np.fromfile(osp.join(self.cluster_path,self.dataset.sequence[seq_number],str(frame_number)+'_'+str(cluster_number)+'.bin'),dtype=np.float32).reshape(-1,6)
         except:
             #return None
-            print(str(self.dataset.sequence))
             raise NameError("Cluster : " + str(self.dataset.sequence[seq_number]) + "_" + str(frame_number)+ "_"  + str(cluster_number) + " not found")
 
     def get_dataset(self):
