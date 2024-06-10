@@ -172,10 +172,10 @@ class ClusterDataset(torch.utils.data.Dataset):
     def generate_dataset(self):
         workers = 7
         worker_id = 6
-        start = worker_id * 100
-        end = start + (len(self.dataset.sequence)/workers)
-        print("Starting: ", start)
-        print("Ending: ", end)
+        ranges = range(len(self.dataset.sequence))
+        ranges = np.array_split(ranges, workers)
+        print("Starting: ", ranges[worker_id][0])
+        print("Ending: ", ranges[worker_id][-1])
         x = input("Enter")
         for i in tqdm(range(start, end),desc="Processing dataset "+str(self.config.source)):
             self.generate_sequence(i)
