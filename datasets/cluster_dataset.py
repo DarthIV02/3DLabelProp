@@ -148,9 +148,18 @@ class ClusterDataset(torch.utils.data.Dataset):
 
 
     def init_weight(self):
-        seq_stat_file = osp.join(self.cluster_path, self.dataset.split,'weight_stats_cluster.npy')
+        
+        workers = 10
+        worker_id = 0
+        ranges = range(0, len(self.dataset.sequence))
+        ranges = np.array_split(ranges, workers)
+        print("Starting: ", ranges[worker_id][0])
+        print("Ending: ", ranges[worker_id][-1])
+        seq_stat_file = osp.join(self.cluster_path, self.dataset.split,f'weight_stats_cluster_{worker_id}.npy')
         print(seq_stat_file)
-        if osp.exists(seq_stat_file):
+        x = input("Enter")
+        complete = False
+        if osp.exists(seq_stat_file) and complete:
             with open(seq_stat_file, 'rb') as f:
                 self.datalist = np.load(f)
                 self.total = len(self.datalist)
@@ -164,28 +173,24 @@ class ClusterDataset(torch.utils.data.Dataset):
             os.makedirs(osp.join(self.cluster_path, self.dataset.split),exist_ok=True)
             print("New dir: ", osp.join(self.cluster_path, self.dataset.split))
             i = 0
-            workers = 10
-            worker_id = 0
-            ranges = range(0, len(self.dataset.sequence))
-            ranges = np.array_split(ranges, workers)
-            print("Starting: ", ranges[worker_id][0])
-            print("Ending: ", ranges[worker_id][-1])
-            x = input("Enter")
-
             for s in tqdm(range(len(self.dataset.sequence))):
-                for k in tqdm(range(self.dataset.get_size_seq(s))):
-                    for l in range(self.config.cluster.n_centroids):
-                        clust = self.get_cluster(s,k,l)
-                        if clust is None:
-                            #print("None")
-                            continue
-                        unique, counts = np.unique(clust[clust[:,4] != -1,4], return_counts=True)
-                        idx = self.n_clust_max*self.size_seq_max*s + self.n_clust_max*k + l
-                        self.datalist[i,unique.astype(np.int32)] = counts
-                        self.datalist[i,-1] = idx
-                        i+=1
-                        #print(i)
-            np.save(seq_stat_file, self.datalist)
+                if s in ranges:
+                    for k in tqdm(range(self.dataset.get_size_seq(s))):
+                        for l in range(self.config.cluster.n_centroids):
+                            clust = self.get_cluster(s,k,l)
+                            if clust is None:
+                                #print("None")
+                                continue
+                            unique, counts = np.unique(clust[clust[:,4] != -1,4], return_counts=True)
+                            idx = self.n_clust_max*self.size_seq_max*s + self.n_clust_max*k + l
+                            self.datalist[i,unique.astype(np.int32)] = counts
+                            self.datalist[i,-1] = idx
+                            i+=1
+                    np.save(seq_stat_file, self.datalist)
+                else:
+                    i += (self.dataset.get_size_seq(s)*self.config.cluster.n_centroids)
+                    print(i)
+                
 
     def generate_dataset(self):
         workers = 1
