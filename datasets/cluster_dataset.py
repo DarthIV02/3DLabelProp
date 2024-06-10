@@ -150,7 +150,7 @@ class ClusterDataset(torch.utils.data.Dataset):
     def init_weight(self):
         
         workers = 10
-        worker_id = 1
+        worker_id = 2
         ranges = range(0, len(self.dataset.sequence))
         ranges = np.array_split(ranges, workers)
         print("Starting: ", ranges[worker_id][0])
