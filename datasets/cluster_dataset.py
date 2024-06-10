@@ -177,7 +177,7 @@ class ClusterDataset(torch.utils.data.Dataset):
         print("Starting: ", ranges[worker_id][0])
         print("Ending: ", ranges[worker_id][-1])
         x = input("Enter")
-        for i in tqdm(range(start, end),desc="Processing dataset "+str(self.config.source)):
+        for i in tqdm(ranges[worker_id],desc="Processing dataset "+str(self.config.source)):
             self.generate_sequence(i)
         x = input("Enter")
 
