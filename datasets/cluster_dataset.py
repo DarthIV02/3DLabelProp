@@ -160,6 +160,7 @@ class ClusterDataset(torch.utils.data.Dataset):
             self.get_dataset()
             self.datalist = np.zeros((self.total, self.n_label+1))
             os.makedirs(osp.join(self.cluster_path, self.dataset.split),exist_ok=True)
+            print("New dir: ", osp.join(self.cluster_path, self.dataset.split))
             i = 0
             workers = 10
             worker_id = 0
@@ -180,6 +181,7 @@ class ClusterDataset(torch.utils.data.Dataset):
                         self.datalist[i,unique.astype(np.int32)] = counts
                         self.datalist[i,-1] = idx
                         i+=1
+                        print(i)
             np.save(seq_stat_file, self.datalist)
 
     def generate_dataset(self):
