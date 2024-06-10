@@ -171,7 +171,7 @@ class ClusterDataset(torch.utils.data.Dataset):
 
     def generate_dataset(self):
         print("Sequences: ", len(self.dataset.sequence))
-        print(len(self.dataset.sequence))
+        print(self.dataset.sequence)
         x = input("Enter: ")
         for i in tqdm(range(len(self.dataset.sequence)),desc="Processing dataset "+str(self.config.source)):
             self.generate_sequence(i)
