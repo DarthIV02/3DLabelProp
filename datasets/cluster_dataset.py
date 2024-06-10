@@ -174,14 +174,14 @@ class ClusterDataset(torch.utils.data.Dataset):
                     for l in range(self.config.cluster.n_centroids):
                         clust = self.get_cluster(s,k,l)
                         if clust is None:
-                            print("None")
+                            #print("None")
                             continue
                         unique, counts = np.unique(clust[clust[:,4] != -1,4], return_counts=True)
                         idx = self.n_clust_max*self.size_seq_max*s + self.n_clust_max*k + l
                         self.datalist[i,unique.astype(np.int32)] = counts
                         self.datalist[i,-1] = idx
                         i+=1
-                        print(i)
+                        #print(i)
             np.save(seq_stat_file, self.datalist)
 
     def generate_dataset(self):
