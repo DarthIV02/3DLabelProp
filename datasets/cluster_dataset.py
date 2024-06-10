@@ -170,9 +170,9 @@ class ClusterDataset(torch.utils.data.Dataset):
             np.save(seq_stat_file, self.datalist)
 
     def generate_dataset(self):
-        workers = 7
+        workers = 1
         worker_id = 0
-        ranges = range(554, len(self.dataset.sequence))
+        ranges = range(0, len(self.dataset.sequence))
         ranges = np.array_split(ranges, workers)
         print("Starting: ", ranges[worker_id][0])
         print("Ending: ", ranges[worker_id][-1])
