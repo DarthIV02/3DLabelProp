@@ -171,7 +171,7 @@ class ClusterDataset(torch.utils.data.Dataset):
 
     def generate_dataset(self):
         workers = 7
-        worker_id = 5
+        worker_id = 4
         ranges = range(len(self.dataset.sequence))
         ranges = np.array_split(ranges, workers)
         print("Starting: ", ranges[worker_id][0])
