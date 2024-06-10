@@ -170,6 +170,7 @@ class ClusterDataset(torch.utils.data.Dataset):
             np.save(seq_stat_file, self.datalist)
 
     def generate_dataset(self):
+        print("Sequences: ", len(self.dataset.sequence))
         for i in tqdm(range(len(self.dataset.sequence)),desc="Processing dataset "+str(self.config.source)):
             self.generate_sequence(i)
 
