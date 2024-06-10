@@ -10,7 +10,8 @@ sequence:
 cluster:
   voxel_size: 2
   n_centroids: 20
-  path: "/root/main/3DLabelProp/"
+  #path: "/root/main/3DLabelProp/"
+  path: "/ramdisk/"
   name: "20_2_05"
   override: 0.3
 

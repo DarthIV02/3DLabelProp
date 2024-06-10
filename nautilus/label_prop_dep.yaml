@@ -21,20 +21,25 @@ spec:
         volumeMounts:
           - mountPath: /root/main
             name: ivannia-volume
+          - name: "ram-disk"
+            mountPath: "/ramdisk"
         resources:
           limits:
             nvidia.com/gpu: "1"
-            memory: "8G"
+            memory: "16G"
             cpu: "1"
             ephemeral-storage: "32Gi"
           requests:
-             memory: "8G"
+             memory: "16G"
              cpu: "1"
              ephemeral-storage: "32Gi"
       volumes:
         - name: ivannia-volume
           persistentVolumeClaim:
             claimName: ivannia-volume
+        - name: ram-disk
+          emptyDir:
+            medium: "Memory"
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
