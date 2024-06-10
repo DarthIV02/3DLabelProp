@@ -188,6 +188,8 @@ class ClusterDataset(torch.utils.data.Dataset):
                             self.datalist[i,-1] = idx
                             i+=1
                     np.save(seq_stat_file, self.datalist)
+                if s == ranges[worker_id][-1]:
+                    break
                 else:
                     i += (self.dataset.get_size_seq(s)*self.config.cluster.n_centroids)
                     print(i)
