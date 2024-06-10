@@ -190,6 +190,7 @@ class ClusterDataset(torch.utils.data.Dataset):
                 else:
                     i += (self.dataset.get_size_seq(s)*self.config.cluster.n_centroids)
                     print(i)
+        x = input("Enter")
                 
 
     def generate_dataset(self):
