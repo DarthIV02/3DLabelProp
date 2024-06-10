@@ -161,11 +161,19 @@ class ClusterDataset(torch.utils.data.Dataset):
             self.datalist = np.zeros((self.total, self.n_label+1))
             os.makedirs(osp.join(self.cluster_path, self.dataset.split),exist_ok=True)
             i = 0
+            workers = 10
+            worker_id = 0
+            ranges = range(0, len(self.dataset.sequence))
+            ranges = np.array_split(ranges, workers)
+            print("Starting: ", ranges[worker_id][0])
+            print("Ending: ", ranges[worker_id][-1])
+            x = input("Enter")
             for s in tqdm(range(len(self.dataset.sequence))):
                 for k in tqdm(range(self.dataset.get_size_seq(s))):
                     for l in range(self.config.cluster.n_centroids):
                         clust = self.get_cluster(s,k,l)
                         if clust is None:
+                            print("None")
                             continue
                         unique, counts = np.unique(clust[clust[:,4] != -1,4], return_counts=True)
                         idx = self.n_clust_max*self.size_seq_max*s + self.n_clust_max*k + l
