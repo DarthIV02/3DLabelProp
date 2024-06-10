@@ -12,6 +12,6 @@ cluster:
   n_centroids: 20
   path: "/root/main/3DLabelProp/"
   #path: "/ramdisk/"
-  name: "20_2_05"
+  name: "20_2_05_2"
   override: 0.3
 
