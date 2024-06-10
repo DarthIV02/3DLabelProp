@@ -158,6 +158,8 @@ class ClusterDataset(torch.utils.data.Dataset):
                 self.size_seq_max = max([self.dataset.get_size_seq(s) for s in range(len(self.dataset.sequence))]) 
         else:
             self.get_dataset()
+            print("Total: ", self.total)
+            print("self.n_label+1: ", self.n_label+1)
             self.datalist = np.zeros((self.total, self.n_label+1))
             os.makedirs(osp.join(self.cluster_path, self.dataset.split),exist_ok=True)
             print("New dir: ", osp.join(self.cluster_path, self.dataset.split))
@@ -169,6 +171,7 @@ class ClusterDataset(torch.utils.data.Dataset):
             print("Starting: ", ranges[worker_id][0])
             print("Ending: ", ranges[worker_id][-1])
             x = input("Enter")
+
             for s in tqdm(range(len(self.dataset.sequence))):
                 for k in tqdm(range(self.dataset.get_size_seq(s))):
                     for l in range(self.config.cluster.n_centroids):
