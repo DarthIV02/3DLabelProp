@@ -176,19 +176,18 @@ class ClusterDataset(torch.utils.data.Dataset):
             for s in tqdm(range(len(self.dataset.sequence))):
                 if s in ranges[worker_id]:
                     print(s)
-                    if s != 153:
-                        for k in range(self.dataset.get_size_seq(s)):
-                            for l in range(self.config.cluster.n_centroids):
-                                clust = self.get_cluster(s,k,l)
-                                if clust is None:
-                                    #print("None")
-                                    continue
-                                unique, counts = np.unique(clust[clust[:,4] != -1,4], return_counts=True)
-                                idx = self.n_clust_max*self.size_seq_max*s + self.n_clust_max*k + l
-                                self.datalist[i,unique.astype(np.int32)] = counts
-                                self.datalist[i,-1] = idx
-                                i+=1
-                        np.save(seq_stat_file, self.datalist)
+                    for k in range(self.dataset.get_size_seq(s)):
+                        for l in range(self.config.cluster.n_centroids):
+                            clust = self.get_cluster(s,k,l)
+                            if clust is None:
+                                #print("None")
+                                continue
+                            unique, counts = np.unique(clust[clust[:,4] != -1,4], return_counts=True)
+                            idx = self.n_clust_max*self.size_seq_max*s + self.n_clust_max*k + l
+                            self.datalist[i,unique.astype(np.int32)] = counts
+                            self.datalist[i,-1] = idx
+                            i+=1
+                    np.save(seq_stat_file, self.datalist)
                 #if s == ranges[worker_id][-1]:
                 #    break
                 #else:
