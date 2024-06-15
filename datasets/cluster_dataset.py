@@ -207,8 +207,6 @@ class ClusterDataset(torch.utils.data.Dataset):
         x = input("Enter")
 
     def generate_sequence(self,seq_number):
-        if self.dataset.sequence[seq_number] == "0541":
-            print("Here")
         if osp.exists(osp.join(self.cluster_path,self.dataset.sequence[seq_number])):
             return True 
         os.makedirs(osp.join(self.cluster_path,self.dataset.sequence[seq_number]),exist_ok=True)
@@ -229,6 +227,8 @@ class ClusterDataset(torch.utils.data.Dataset):
         local_limit = self.config.sequence.limit_GT_time
         start = [i for i in range(self.config.subsample)]
         for st in start:
+            if str(self.dataset.sequence[seq_number]) == "0541":
+                x = input("Enter")
             for frame in tqdm(range(st,len_seq,len(start)),leave=False,desc="Sequence: " + str(self.dataset.sequence[seq_number]) + ", subsample number " +str(st+1)+"/"+str(len(start))):
                 if frame>st:
                     #Check if the sensor moved more than min_dist_mvt
