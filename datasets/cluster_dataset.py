@@ -176,7 +176,7 @@ class ClusterDataset(torch.utils.data.Dataset):
             for s in tqdm(range(len(self.dataset.sequence))):
                 if s in ranges[worker_id]:
                     print(s)
-                    for k in tqdm(range(self.dataset.get_size_seq(s))):
+                    for k in range(self.dataset.get_size_seq(s)):
                         for l in range(self.config.cluster.n_centroids):
                             clust = self.get_cluster(s,k,l)
                             if clust is None:
