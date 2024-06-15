@@ -149,7 +149,7 @@ class ClusterDataset(torch.utils.data.Dataset):
 
     def init_weight(self):
         
-        workers = 10
+        workers = 1
         worker_id = 0
         ranges = range(0, len(self.dataset.sequence))
         ranges = np.array_split(ranges, workers)
