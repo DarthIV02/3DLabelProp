@@ -1,0 +1,38 @@
+apiVersion: batch/v1
+kind: Job
+#apiVersion: v1
+#kind: Pod
+metadata:
+  name: compress-nuscenes-small
+spec:
+  template:
+    spec:
+      containers:
+      - name: compress-nuscenes-small
+        image: nvidia/cuda:11.1.1-cudnn8-devel-ubuntu18.04
+        command: ["/bin/bash", "-c"]
+        args:
+          - cd /root/main/init_nautilus;
+            bash initial_setup.sh;
+            apt install pigz;
+            cd /root/main/3DLabelProp/nuscenes/;
+            tar cvf - 20_2_05 | pigz -p8 > 20_2_05_j.tar.gz;
+        #command: ["sleep", "infinity"]
+        volumeMounts:
+          - mountPath: /root/main
+            name: ivannia-volume
+        resources:
+           limits:
+             memory: "8G"
+             cpu: 1
+             ephemeral-storage: "32Gi"
+           requests:
+             memory: "8G"
+             cpu: 1
+             ephemeral-storage: "32Gi"
+      volumes:
+        - name: ivannia-volume
+          persistentVolumeClaim:
+            claimName: ivannia-volume
+      restartPolicy: Never
+  backoffLimit: 4
