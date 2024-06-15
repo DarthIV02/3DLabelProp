@@ -227,7 +227,7 @@ class ClusterDataset(torch.utils.data.Dataset):
         local_limit = self.config.sequence.limit_GT_time
         start = [i for i in range(self.config.subsample)]
         for st in start:
-            if str(self.dataset.sequence[seq_number]) == "0541":
+            if str(self.dataset.sequence[seq_number]) == "scene-0541":
                 x = input("Enter")
             for frame in tqdm(range(st,len_seq,len(start)),leave=False,desc="Sequence: " + str(self.dataset.sequence[seq_number]) + ", subsample number " +str(st+1)+"/"+str(len(start))):
                 if frame>st:
