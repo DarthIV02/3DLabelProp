@@ -176,23 +176,24 @@ class ClusterDataset(torch.utils.data.Dataset):
             for s in tqdm(range(len(self.dataset.sequence))):
                 if s in ranges[worker_id]:
                     print(s)
-                    for k in range(self.dataset.get_size_seq(s)):
-                        for l in range(self.config.cluster.n_centroids):
-                            clust = self.get_cluster(s,k,l)
-                            if clust is None:
-                                #print("None")
-                                continue
-                            unique, counts = np.unique(clust[clust[:,4] != -1,4], return_counts=True)
-                            idx = self.n_clust_max*self.size_seq_max*s + self.n_clust_max*k + l
-                            self.datalist[i,unique.astype(np.int32)] = counts
-                            self.datalist[i,-1] = idx
-                            i+=1
-                    np.save(seq_stat_file, self.datalist)
-                if s == ranges[worker_id][-1]:
-                    break
-                else:
-                    i += (self.dataset.get_size_seq(s)*self.config.cluster.n_centroids)
-                    print(i)
+                    if s != 153:
+                        for k in range(self.dataset.get_size_seq(s)):
+                            for l in range(self.config.cluster.n_centroids):
+                                clust = self.get_cluster(s,k,l)
+                                if clust is None:
+                                    #print("None")
+                                    continue
+                                unique, counts = np.unique(clust[clust[:,4] != -1,4], return_counts=True)
+                                idx = self.n_clust_max*self.size_seq_max*s + self.n_clust_max*k + l
+                                self.datalist[i,unique.astype(np.int32)] = counts
+                                self.datalist[i,-1] = idx
+                                i+=1
+                        np.save(seq_stat_file, self.datalist)
+                #if s == ranges[worker_id][-1]:
+                #    break
+                #else:
+                #    i += (self.dataset.get_size_seq(s)*self.config.cluster.n_centroids)
+                #    print(i)
         x = input("Enter")
                 
 
@@ -227,8 +228,6 @@ class ClusterDataset(torch.utils.data.Dataset):
         local_limit = self.config.sequence.limit_GT_time
         start = [i for i in range(self.config.subsample)]
         for st in start:
-            if str(self.dataset.sequence[seq_number]) == "scene-0541":
-                x = input("Enter")
             for frame in tqdm(range(st,len_seq,len(start)),leave=False,desc="Sequence: " + str(self.dataset.sequence[seq_number]) + ", subsample number " +str(st+1)+"/"+str(len(start))):
                 if frame>st:
                     #Check if the sensor moved more than min_dist_mvt
