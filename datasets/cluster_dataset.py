@@ -207,6 +207,8 @@ class ClusterDataset(torch.utils.data.Dataset):
         x = input("Enter")
 
     def generate_sequence(self,seq_number):
+        if self.dataset.sequence[seq_number] == "0541":
+            print("Here")
         if osp.exists(osp.join(self.cluster_path,self.dataset.sequence[seq_number])):
             return True 
         os.makedirs(osp.join(self.cluster_path,self.dataset.sequence[seq_number]),exist_ok=True)
