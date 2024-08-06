@@ -188,6 +188,7 @@ class ClusterDataset(torch.utils.data.Dataset):
                             self.datalist[i,-1] = idx
                             i+=1
                     np.save(seq_stat_file, self.datalist)
+                    print(seq_stat_file)
                 #if s == ranges[worker_id][-1]:
                 #    break
                 #else:
@@ -289,4 +290,3 @@ class ClusterDataset(torch.utils.data.Dataset):
                 #save
                 for c in range(len(clusters)):
                     accumulated_pointcloud[clusters[c]].astype(np.float32).tofile(osp.join(self.cluster_path,seq,str(frame)+'_'+str(c)+'.bin'),format='float32')
-
