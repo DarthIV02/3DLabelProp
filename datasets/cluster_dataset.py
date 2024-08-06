@@ -158,8 +158,8 @@ class ClusterDataset(torch.utils.data.Dataset):
         seq_stat_file = osp.join(self.cluster_path, self.dataset.split,f'weight_stats_cluster_{worker_id}.npy')
         print(seq_stat_file)
         x = input("Enter")
-        complete = False
-        if osp.exists(seq_stat_file) and complete:
+        #complete = False
+        if osp.exists(seq_stat_file): #and complete:
             with open(seq_stat_file, 'rb') as f:
                 self.datalist = np.load(f)
                 self.total = len(self.datalist)
