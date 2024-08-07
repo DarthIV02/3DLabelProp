@@ -174,7 +174,6 @@ class Trainer:
             torch.cuda.empty_cache()
             if iter_count < self.config.trainer.epoch_lr:
                 self.scheduler.step()
-            print((iter_count+1), self.config.trainer.evaluate_timing, self.epochs-1)
             if (iter_count+1)%self.config.trainer.evaluate_timing == 0 or iter_count == self.epochs-1:
                 if self.config.architecture.model == "KPCONV":
                     self.evaluate_kp()
