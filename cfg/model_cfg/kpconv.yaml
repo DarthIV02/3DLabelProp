@@ -13,7 +13,7 @@ trainer:
   weight_decay: 0.0001
   balanced: True
   criterion: Lovasz_weighted
-  evaluate_timing: 50
+  evaluate_timing: 250
   evaluate_size: 500
   scheduler: CosineAnnealing
   step_size: 750
