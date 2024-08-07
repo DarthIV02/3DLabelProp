@@ -1,8 +1,8 @@
-echo Y | apt-get install libmlpack-dev
-echo Y | apt -y install python3-pybind11
-echo Y | apt-get install liblapack-dev
-echo Y | apt-get install libblas-dev
-echo Y | apt-get install libarmadillo-dev
+apt-get -y install libmlpack-dev
+apt -y install python3-pybind11
+apt-get -y install liblapack-dev
+apt-get -y install libblas-dev
+apt-get -y install libarmadillo-dev
 # sudo apt-get install libmlpack-dev # add again if crashes with fatal error: mlpack/methods/kmeans/kmeans.hpp
 #conda create --name 3DLabelProp python=3.7
 #conda activate 3DLabelProp
