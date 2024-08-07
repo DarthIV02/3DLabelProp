@@ -23,6 +23,8 @@ spec:
             name: data
           - mountPath: /root/main
             name: ivannia-volume
+          - mountPath: /dev/shm
+            name: cache-volume
         resources:
           limits:
             nvidia.com/gpu: "1"
@@ -39,6 +41,10 @@ spec:
             claimName: ivannia-volume
         - name: data
           emptyDir: {}
+        - emptyDir:
+            medium: Memory
+            sizeLimit: 16Gi
+          name: cache-volume
       #affinity:
       #  nodeAffinity:
       #    requiredDuringSchedulingIgnoredDuringExecution:

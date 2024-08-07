@@ -140,7 +140,7 @@ class Trainer:
         wandb.init(**self.parse_config_for_args())
 
     def parse_config_for_args(self):
-        return {'project':"label_propagation", 'config':self.config_extraction(), 'entity':'caor', 'name':self.config.architecture.model+'_'+self.config.source+'_'+self.config.trainer.criterion.split('_')[0]+'_'+self.config.logger.run_name}
+        return {'project':"label_propagation", 'config':self.config_extraction(), 'name':self.config.architecture.model+'_'+self.config.source+'_'+self.config.trainer.criterion.split('_')[0]+'_'+self.config.logger.run_name}
 
     def config_extraction(self):
         return {
