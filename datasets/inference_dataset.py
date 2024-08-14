@@ -3,6 +3,8 @@ import torch
 import os, time
 import os.path as osp 
 from utils.slam import *
+from tqdm import tqdm
+
 try:
     from torchsparse.utils.quantize import sparse_quantize
     def grid_subsample(accumulated_pointcloud,accumulated_confidence,vox_size):
@@ -33,11 +35,12 @@ def per_class_iu(hist):
     with np.errstate(divide='ignore', invalid='ignore'):
         return np.diag(hist) / (hist.sum(1) + hist.sum(0) - np.diag(hist))
 
-def confmat_computations_parallel(frame_list,label_list=np.arange(-1,19),n_process=20,source_mapping=None,target_mapping=None):
+def confmat_computations_parallel(frame_list,label_list=np.arange(-1,19),n_process=1,source_mapping=None,target_mapping=None):
+    # n_process was originally 20
     global compute_conf_mat
     def compute_conf_mat(frame):
         results = np.load(frame)
-        #print(results.shape)
+        print(results.shape)
         #print(np.bincount(results[:,-1].astype(np.int32)+1))
         #print(np.bincount(results[:,0].astype(np.int32)+1))
         #print(target_mapping)
@@ -46,6 +49,8 @@ def confmat_computations_parallel(frame_list,label_list=np.arange(-1,19),n_proce
         pred = target_mapping[results[:,0].astype(np.int32)+1] # prev source_mapping
         c_mat = confusion_matrix(gt,pred,labels=label_list)
         return c_mat
+    
+    print("The length of frame list is: ", len(frame_list)) # Check inference length
     with Pool(n_process) as p:
         all_cmat = np.array(p.map(compute_conf_mat, frame_list))
     cmat = np.sum(all_cmat,axis=0)
@@ -112,7 +117,8 @@ class InferenceDataset:
             checkpoint = torch.load(os.path.join(self.config.logger.save_path,self.config.logger.model_name))
         else:
             self.device = torch.device("cpu") 
-            checkpoint = torch.load(os.path.join(self.config.logger.save_path,"best_mIoU_"+self.config.logger.model_name), map_location=self.device)
+            checkpoint = torch.load(os.path.join(self.config.logger.save_path,self.config.logger.model_name), map_location=self.device)
+        #checkpoint = torch.load(os.path.join(self.config.logger.save_path,"best_mIoU_"+self.config.logger.model_name), map_location=self.device)
         self.model.model.to(self.device)
         self.model.model.load_state_dict(checkpoint)
         self.model.model.eval()
@@ -148,7 +154,7 @@ class InferenceDataset:
             seq_path = osp.join(self.save, seq)
             print(seq_path)
             file_list = [os.path.join(seq_path,f) for f in  os.listdir(seq_path)]
-            conf_mat += confmat_computations_parallel(file_list, np.arange(0,n_labels),20,source_mapping=source_mapping,target_mapping=target_mapping)
+            conf_mat += confmat_computations_parallel(file_list, np.arange(0,n_labels),1,source_mapping=source_mapping,target_mapping=target_mapping) # 1 is the n_process, normally is 20
         ius = per_class_iu(conf_mat)
         miu = np.nanmean(ius)
         return ius, miu
@@ -223,8 +229,8 @@ class InferenceDataset:
 
                 accumulated_pointcloud = np.vstack((accumulated_pointcloud,pointcloud))
                 accumulated_confidence = accumulated_confidence.reshape((accumulated_confidence.shape[0]))
-                print("4: ", accumulated_confidence.shape, "\n")
-                print("zeros: ", np.zeros(len(pointcloud)).shape, "\n")
+                #print("4: ", accumulated_confidence.shape, "\n")
+                #print("zeros: ", np.zeros(len(pointcloud)).shape, "\n")
                 accumulated_confidence = np.concatenate((accumulated_confidence,np.zeros(len(pointcloud))))
 
                 acc_label = np.copy(accumulated_pointcloud[:,4].astype(np.int32))
@@ -240,7 +246,7 @@ class InferenceDataset:
                 clusters = list(filter(lambda e: len(e)>1,clusters))
                 clusters = [np.array(c) for c in clusters]
 
-
+                # Predictions are made here :0
                 total_pred = self.infer_concat(self.model,[accumulated_pointcloud[c] for c in clusters],self.device,self.cfg_model,1)
                 predicted_cloudwise = np.zeros((len(accumulated_pointcloud),self.n_label+1))
                 for i in range(len(clusters)):
@@ -258,5 +264,5 @@ class InferenceDataset:
                 to_save[:,0] = accumulated_pointcloud[-len(pointcloud):,4].astype(np.int32)
                 to_save[:,-1] = label.astype(np.int32)
                 np.save(osp.join(self.save, seq, str(frame)+'.npy'), to_save)
-                print(osp.join(self.save, seq, str(frame)+'.npy'))
+                #print(osp.join(self.save, seq, str(frame)+'.npy'))
 
