@@ -4,7 +4,7 @@ architecture:
   n_features: 1
 trainer:
   epoch: 500000
-  batch_size: 1
+  batch_size: 1 # should be 8
   lr: 0.005
   min_lr: 0.00001
   epoch_lr: 500000
