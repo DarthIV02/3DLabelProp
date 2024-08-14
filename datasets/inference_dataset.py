@@ -43,7 +43,7 @@ def confmat_computations_parallel(frame_list,label_list=np.arange(-1,19),n_proce
         #print(target_mapping)
         #print(source_mapping)
         gt = target_mapping[results[:,-1].astype(np.int32)+1]
-        pred = target_mapping[results[:,0].astype(np.int32)+1]
+        pred = target_mapping[results[:,0].astype(np.int32)+1] # prev source_mapping
         c_mat = confusion_matrix(gt,pred,labels=label_list)
         return c_mat
     with Pool(n_process) as p:
