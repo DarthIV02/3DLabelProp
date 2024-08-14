@@ -37,6 +37,7 @@ def confmat_computations_parallel(frame_list,label_list=np.arange(-1,19),n_proce
     global compute_conf_mat
     def compute_conf_mat(frame):
         results = np.load(frame)
+        print(results.shape)
         print(np.bincount(results[:,-1].astype(np.int32)+1))
         gt = target_mapping[results[:,-1].astype(np.int32)+1]
         pred = source_mapping[results[:,0].astype(np.int32)+1]
