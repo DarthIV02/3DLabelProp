@@ -35,7 +35,7 @@ def per_class_iu(hist):
     with np.errstate(divide='ignore', invalid='ignore'):
         return np.diag(hist) / (hist.sum(1) + hist.sum(0) - np.diag(hist))
 
-def confmat_computations_parallel(frame_list,label_list=np.arange(-1,19),n_process=1,source_mapping=None,target_mapping=None):
+def confmat_computations_parallel(frame_list,label_list=np.arange(-1,19),n_process=20,source_mapping=None,target_mapping=None):
     # n_process was originally 20
     global compute_conf_mat
     def compute_conf_mat(frame):
@@ -56,7 +56,7 @@ def confmat_computations_parallel(frame_list,label_list=np.arange(-1,19),n_proce
     cmat = np.sum(all_cmat,axis=0)
     return cmat
 
-def infer_concat_kp(model,clusters,device,config_model,batch_size):
+def infer_concat_kp(model,clusters,device,config_model,batch_size): # This is the model that runs the inference
     smax = torch.nn.Softmax(dim=1)
     cluster_outputs_proba = []
     for k in range(len(clusters)//batch_size+(len(clusters)%batch_size!=0)):
@@ -65,7 +65,9 @@ def infer_concat_kp(model,clusters,device,config_model,batch_size):
         r_clouds, r_inds_list = model.prepare_data(sub_clusters,False,True)
         if 'cuda' in device.type:
             r_clouds.to(device)
-        outputs = smax(model.model(r_clouds, config_model))
+        outputs = smax(model.model(r_clouds, config_model)) # This are the individual predictions
+        print("Output here?")
+        print(outputs.shape)
         pred = outputs.detach().cpu().numpy()
         del outputs
         preds = []
@@ -154,7 +156,7 @@ class InferenceDataset:
             seq_path = osp.join(self.save, seq)
             print(seq_path)
             file_list = [os.path.join(seq_path,f) for f in  os.listdir(seq_path)]
-            conf_mat += confmat_computations_parallel(file_list, np.arange(0,n_labels),1,source_mapping=source_mapping,target_mapping=target_mapping) # 1 is the n_process, normally is 20
+            conf_mat += confmat_computations_parallel(file_list, np.arange(0,n_labels),20,source_mapping=source_mapping,target_mapping=target_mapping)
         ius = per_class_iu(conf_mat)
         miu = np.nanmean(ius)
         return ius, miu
@@ -165,11 +167,11 @@ class InferenceDataset:
             self.compute_sequence(i)
 
     def compute_sequence(self,seq_number):
-        if osp.exists(osp.join(self.save,self.trg_datast.sequence[seq_number])):
-            print("Skip")
-            print(osp.join(self.save,self.trg_datast.sequence[seq_number]))
-            return True 
-        os.makedirs(osp.join(self.save,self.trg_datast.sequence[seq_number]),exist_ok=True)
+        #if osp.exists(osp.join(self.save,self.trg_datast.sequence[seq_number])): # This was commented to reduce the amount of times that the data is calculated
+        #    print("Skip")
+        #    print(osp.join(self.save,self.trg_datast.sequence[seq_number]))
+        #    return True 
+        #os.makedirs(osp.join(self.save,self.trg_datast.sequence[seq_number]),exist_ok=True)
 
         #init accumulated arrays
         accumulated_pointcloud = np.empty((0,6))
@@ -247,6 +249,7 @@ class InferenceDataset:
                 clusters = [np.array(c) for c in clusters]
 
                 # Predictions are made here :0
+                #print("Total_Pred")
                 total_pred = self.infer_concat(self.model,[accumulated_pointcloud[c] for c in clusters],self.device,self.cfg_model,1)
                 predicted_cloudwise = np.zeros((len(accumulated_pointcloud),self.n_label+1))
                 for i in range(len(clusters)):
