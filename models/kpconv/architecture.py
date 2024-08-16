@@ -7,7 +7,7 @@
 #
 # ----------------------------------------------------------------------------------------------------------------------
 #
-#      Define network architectures
+#      Define network architectures - Actual Features
 #
 # ----------------------------------------------------------------------------------------------------------------------
 #
@@ -328,7 +328,7 @@ class KPFCNN(nn.Module):
         
         print("X_init: ", len(batch.points))
         print(batch.points[0].shape)
-        #print(batch.__dict__) # batch is where the data of the subsample is :)
+        #print(batch.__dict__) # batch is where the data of the subsample is :) and x is just a place to dump the features result
         #print(x[:, 0])
 
         # Loop over consecutive blocks
