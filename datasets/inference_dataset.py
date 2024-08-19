@@ -66,6 +66,7 @@ def infer_concat_kp(model,clusters,device,config_model,batch_size): # This is th
         if 'cuda' in device.type:
             r_clouds.to(device)
         outputs = smax(model.model(r_clouds, config_model)) # This are the individual predictions
+        print(r_clouds.labels.shape)
         print("Output here?")
         print(outputs.shape)
         pred = outputs.detach().cpu().numpy()
@@ -196,7 +197,7 @@ class InferenceDataset:
                     pointcloud, label = self.trg_datast.loader(seq,frame)
                     
                     if st_real: # frame>st
-                        raise Exception("Just one for now") 
+                        raise Exception("Just one for now") # This needs to be removed
                         #Check if the sensor moved more than min_dist_mvt
                         if np.linalg.norm(local_trans - trans[frame-lastIndex]) < self.config.sequence.min_dist_mvt:
                             accumulated_pointcloud = accumulated_pointcloud[:-len(pointcloud)]
@@ -253,7 +254,7 @@ class InferenceDataset:
 
                     # Predictions are made here :0
 
-                    total_pred = self.infer_concat(self.model,[accumulated_pointcloud[c] for c in clusters],self.device,self.cfg_model,1)
+                    total_pred = self.infer_concat(self.model,[accumulated_pointcloud[c] for c in clusters],self.device,self.cfg_model,1) # Change 1 to change the batch size
                     print("Total_Pred")
                     print(len(total_pred))
                     print(total_pred[0].shape)

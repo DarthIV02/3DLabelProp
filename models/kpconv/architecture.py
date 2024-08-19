@@ -326,9 +326,11 @@ class KPFCNN(nn.Module):
         # Get input features
         x = batch.features.clone().detach()
         
-        print("X_init: ", len(batch.points))
-        print(batch.points[0].shape)
+        print("TrainHD?: ", config.train_hd) # Config is sampled in the initial test script
+        #print("X_init: ", len(batch.points))
+        #print(batch.points[0].shape)
         #print(batch.__dict__) # batch is where the data of the subsample is :) and x is just a place to dump the features result
+        #print(batch.labels)
         #print(x[:, 0])
 
         # Loop over consecutive blocks
@@ -337,20 +339,19 @@ class KPFCNN(nn.Module):
             if block_i in self.encoder_skips:
                 skip_x.append(x)
             x = block_op(x, batch)
-            print("X_interme_enc: ", x.shape)
+            #print("X_interme_enc: ", x.shape) # Features encoder
 
         for block_i, block_op in enumerate(self.decoder_blocks):
             if block_i in self.decoder_concats:
                 x = torch.cat([x, skip_x.pop()], dim=1)
             x = block_op(x, batch)
-            print("X_interme_dec: ", x.shape)
+            #print("X_interme_dec: ", x.shape) Features decoder
 
         # Head of network
         x = self.head_mlp(x, batch)
-        print("X_fin: ", x.shape)
+        #print("X_fin: ", x.shape)
         x = self.head_softmax(x, batch)
-        print("X_fin: ", x.shape)
-        print(x)
+        #print("X_fin: ", x.shape)
 
         return x
 
