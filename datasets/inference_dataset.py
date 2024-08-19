@@ -108,7 +108,7 @@ def infer_concat_spv(model,clusters,device,config_model,batch_size):
 
 class InferenceDataset:
 
-    def __init__(self, config, ref_dataset, trg_datast, model, config_model):
+    def __init__(self, config, ref_dataset, trg_datast, model, config_model, hd_model=None):
         self.config = config 
         self.ref_dataset = ref_dataset 
         self.trg_datast = trg_datast 
@@ -130,6 +130,7 @@ class InferenceDataset:
             self.infer_concat = infer_concat_kp
         elif self.config.architecture.model == "KPCONV":
             self.infer_concat = infer_concat_spv
+        self.hd_model = hd_model
 
 
     def compute_results(self):
