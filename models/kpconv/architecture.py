@@ -17,6 +17,8 @@
 from models.kpconv.blocks import *
 import numpy as np
 from torch import nn
+import torch
+from torch.utils.data import Dataset, DataLoader
 
 __all__ = ['KPFCNN']
 
@@ -55,6 +57,18 @@ def p2p_fitting_regularizer(net):
 
     return net.deform_fitting_power * (2 * fitting_loss + repulsive_loss)
 
+class CustomDataset(Dataset):
+    def __init__(self, samples, labels):
+        self.samples = samples
+        self.labels = labels
+
+    def __len__(self):
+        return len(self.samples)
+
+    def __getitem__(self, idx):
+        sample = self.samples[idx]
+        label = self.labels[idx]
+        return sample, label
 
 class KPCNN(nn.Module):
     """
@@ -321,17 +335,21 @@ class KPFCNN(nn.Module):
 
         return
 
-    def forward(self, batch, config):
+    def forward(self, batch, config, config_data, hd_model=None):
 
         # Get input features
         x = batch.features.clone().detach()
         
-        print("TrainHD?: ", config.train_hd) # Config is sampled in the initial test script
+        #print("TrainHD?: ", config.train_hd) # Config is sampled in the initial test script
+        #if config.train_hd:
+        #    print(hd_model.lr)
         #print("X_init: ", len(batch.points))
-        #print(batch.points[0].shape)
+        print(batch.points[0].shape)
         #print(batch.__dict__) # batch is where the data of the subsample is :) and x is just a place to dump the features result
-        #print(batch.labels)
-        #print(x[:, 0])
+        print(batch.labels.shape)
+        print(x[:, 0].shape)
+        
+        flag_break = False
 
         # Loop over consecutive blocks
         skip_x = []
@@ -339,19 +357,34 @@ class KPFCNN(nn.Module):
             if block_i in self.encoder_skips:
                 skip_x.append(x)
             x = block_op(x, batch)
-            #print("X_interme_enc: ", x.shape) # Features encoder
+            print("X_interme_enc: ", x.shape) # Features encoder
+            #if block_i == config_data.hd_block_stop and config.train_hd:
+            #    flag_break = True
+            #    break
+            
+        
+        if not flag_break:
+            for block_i, block_op in enumerate(self.decoder_blocks):
+                if block_i in self.decoder_concats:
+                    x = torch.cat([x, skip_x.pop()], dim=1)
+                x = block_op(x, batch)
+                print("X_interme_dec: ", x.shape) Features decoder
 
-        for block_i, block_op in enumerate(self.decoder_blocks):
-            if block_i in self.decoder_concats:
-                x = torch.cat([x, skip_x.pop()], dim=1)
-            x = block_op(x, batch)
-            #print("X_interme_dec: ", x.shape) Features decoder
-
-        # Head of network
-        x = self.head_mlp(x, batch)
-        #print("X_fin: ", x.shape)
+            # Head of network
+            x = self.head_mlp(x, batch)
+            #print("X_fin: ", x.shape)
+        
+        if flag_break:
+            print("x:", x.shape)
+            print("labels:", batch.labels.shape)
+            dataset = CustomDataset(x, batch.labels)
+            x_ld = torch.utils.data.DataLoader(dataset, batch_size=config_data.trainer.batch_size, shuffle=True)
+            hd_model.fit(x_ld)
+            x = hd_model(x_ld)
+        
+        print("X_fin_hd: ", x.shape)
         x = self.head_softmax(x, batch)
-        #print("X_fin: ", x.shape)
+        print("X_fin: ", x.shape)
 
         return x
 
