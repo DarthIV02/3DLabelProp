@@ -2,5 +2,5 @@ hd_block_stop: 5
 hd_encoding: 'linear'
 n_features: 128
 n_dimensions: 10000
-n_classes: 16
-epochs: 20
+n_classes: 19
+epochs: 1

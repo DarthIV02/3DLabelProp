@@ -375,16 +375,17 @@ class KPFCNN(nn.Module):
         #print("X_fin: ", x.shape)
         
         print("x:", x.shape)
-        print("labels:", batch.labels.shape)
-        print("labels:", batch.labels)
+        print("labels:", labels.shape)
+        print("labels:", labels)
         dataset = CustomDataset(x, labels.astype('int64'))
         x_ld = torch.utils.data.DataLoader(dataset, batch_size=config_data.trainer.batch_size, shuffle=True)
         hd_model.fit(x_ld)
-        x = hd_model(x_ld)
+        x = x.to(self.device)
+        x = hd_model(x)
         
         print("X_fin_hd: ", x.shape)
-        x = self.head_softmax(x, batch)
-        print("X_fin: ", x.shape)
+        #x = self.head_softmax(x, batch)
+        #print("X_fin: ", x.shape)
 
         return x
 
