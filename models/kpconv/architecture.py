@@ -335,7 +335,7 @@ class KPFCNN(nn.Module):
 
         return
 
-    def forward(self, batch, config, config_data, hd_model=None):
+    def forward(self, batch, config, config_data, hd_model=None, labels=None):
 
         # Get input features
         x = batch.features.clone().detach()
@@ -376,7 +376,8 @@ class KPFCNN(nn.Module):
         
         print("x:", x.shape)
         print("labels:", batch.labels.shape)
-        dataset = CustomDataset(x, batch.labels)
+        print("labels:", batch.labels)
+        dataset = CustomDataset(x, labels.astype('int64'))
         x_ld = torch.utils.data.DataLoader(dataset, batch_size=config_data.trainer.batch_size, shuffle=True)
         hd_model.fit(x_ld)
         x = hd_model(x_ld)

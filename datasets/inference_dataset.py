@@ -56,7 +56,7 @@ def confmat_computations_parallel(frame_list,label_list=np.arange(-1,19),n_proce
     cmat = np.sum(all_cmat,axis=0)
     return cmat
 
-def infer_concat_kp(model,clusters,device,config_model,batch_size,config_data, hd_model=None): # This is the model that runs the inference
+def infer_concat_kp(model,clusters,device,config_model,batch_size,config_data, hd_model=None, labels=None): # This is the model that runs the inference
     smax = torch.nn.Softmax(dim=1)
     cluster_outputs_proba = []
     for k in range(len(clusters)//batch_size+(len(clusters)%batch_size!=0)):
@@ -65,7 +65,7 @@ def infer_concat_kp(model,clusters,device,config_model,batch_size,config_data, h
         r_clouds, r_inds_list = model.prepare_data(sub_clusters,False,True)
         if 'cuda' in device.type:
             r_clouds.to(device)
-        outputs = smax(model.model(r_clouds, config_model, config_data, hd_model)) # This are the individual predictions
+        outputs = smax(model.model(r_clouds, config_model, config_data, hd_model, labels)) # This are the individual predictions
         print(r_clouds.labels.shape)
         print("Output here?")
         print(outputs.shape)
@@ -196,6 +196,7 @@ class InferenceDataset:
             for frame in tqdm(range(st,len_seq,len(start)),leave=False,desc="Sequence: " + str(self.trg_datast.sequence[seq_number]) + ", subsample number " +str(st+1)+"/"+str(len(start))):                
                 try:                    
                     pointcloud, label = self.trg_datast.loader(seq,frame)
+                    print("label on inference: ", label)
                     
                     if st_real: # frame>st
                         raise Exception("Just one for now") # This needs to be removed
@@ -255,7 +256,7 @@ class InferenceDataset:
 
                     # Predictions are made here :0
 
-                    total_pred = self.infer_concat(self.model,[accumulated_pointcloud[c] for c in clusters],self.device,self.cfg_model,  1, self.config, self.hd_model) # Change 1 to change the batch size
+                    total_pred = self.infer_concat(self.model,[accumulated_pointcloud[c] for c in clusters],self.device,self.cfg_model,  1, self.config, self.hd_model, label) # Change 1 to change the batch size
                     print("Total_Pred")
                     print(len(total_pred))
                     print(total_pred[0].shape)

@@ -61,10 +61,11 @@ class OnlineHD(Classifier):
 
         for _ in trange(self.epochs, desc="fit"):
             for samples, labels in data_loader:
-                samples = samples.to(self.device)
-                labels = labels.to(self.device)
+                if labels != -1:
+                    samples = samples.to(self.device)
+                    labels = labels.to(self.device)
 
-                encoded = self.encoder(samples)
-                self.model.add_online(encoded, labels, lr=self.lr)
+                    encoded = self.encoder(samples)
+                    self.model.add_online(encoded, labels, lr=self.lr)
 
         return self
