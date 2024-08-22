@@ -196,7 +196,7 @@ class InferenceDataset:
             for frame in tqdm(range(st,len_seq,len(start)),leave=False,desc="Sequence: " + str(self.trg_datast.sequence[seq_number]) + ", subsample number " +str(st+1)+"/"+str(len(start))):                
                 try:                    
                     pointcloud, label = self.trg_datast.loader(seq,frame)
-                    print("label on inference: ", label)
+                    print("label on inference: ", label.shape)
                     
                     if st_real: # frame>st
                         raise Exception("Just one for now") # This needs to be removed
@@ -225,7 +225,7 @@ class InferenceDataset:
                     local_rot, local_trans = rot[frame], trans[frame]
 
                     #add channel for semantic and for timestamp
-                    pointcloud = np.hstack((pointcloud[:,:4],np.zeros(len(pointcloud)).reshape(-1,1)-1,np.zeros(len(pointcloud)).reshape(-1,1)+frame))
+                    pointcloud = np.hstack((pointcloud[:,:4],label.reshape(-1,1),np.zeros(len(pointcloud)).reshape(-1,1)+frame)) # np.zeros(len(pointcloud)).reshape(-1,1)-1
                     pointcloud = apply_transformation(pointcloud, (local_rot, local_trans))
 
                     #remove accumulated points too far from the center

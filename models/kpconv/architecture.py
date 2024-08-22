@@ -375,12 +375,12 @@ class KPFCNN(nn.Module):
         #print("X_fin: ", x.shape)
         
         print("x:", x.shape)
-        print("labels:", labels.shape)
-        print("labels:", labels)
-        dataset = CustomDataset(x, labels.astype('int64'))
+        print("labels:", batch.labels.shape)
+        print("labels:", batch.labels)
+        print("All equal?", torch.all(batch.labels == batch.labels.flatten()[0]))
+        dataset = CustomDataset(x, batch.labels) # .astype('int64')
         x_ld = torch.utils.data.DataLoader(dataset, batch_size=config_data.trainer.batch_size, shuffle=True)
         hd_model.fit(x_ld)
-        x = x.to(self.device)
         x = hd_model(x)
         
         print("X_fin_hd: ", x.shape)

@@ -298,6 +298,7 @@ class SemanticSegmentationModel:
         r_mask_list = []
         t_list = []
         for pc in pointclouds:
+            print("pc:", pc, pc.shape)
             pc = pc.astype(np.float32)
             #center if asked
             merged_points = pc[:,:3]
@@ -325,11 +326,14 @@ class SemanticSegmentationModel:
 
             merged_coords = pc[:,np.array([0,1,2,3,-1])]
             merged_labels = pc[:,4]
+            print("Labels in preporc:", merged_labels, merged_labels.shape)
+            print(torch.all(torch.from_numpy(merged_labels) == torch.from_numpy(merged_labels).flatten()[0]))
 
             in_pts, in_fts, in_lbls = grid_subsampling(merged_points,
                                                         features=merged_coords,
                                                         labels=merged_labels.astype(np.int32),
                                                         sampleDl=self.model_config.first_subsampling_dl)
+         
             p_list += [in_pts]
             f_list += [in_fts]
             l_list += [in_lbls.reshape(-1)]
