@@ -344,43 +344,42 @@ class KPFCNN(nn.Module):
         #if config.train_hd:
         #    print(hd_model.lr)
         #print("X_init: ", len(batch.points))
-        print(batch.points[0].shape)
+        #print(batch.points[0].shape)
         #print(batch.__dict__) # batch is where the data of the subsample is :) and x is just a place to dump the features result
-        print(batch.labels.shape)
-        print(x[:, 0].shape)
-        
-        flag_break = False
+        #print(batch.labels.shape)
+        #print(x[:, 0].shape)
 
         # Loop over consecutive blocks
         skip_x = []
         for block_i, block_op in enumerate(self.encoder_blocks):
+            if block_i == config_data.hd_block_stop and config.train_hd:
+                break
             if block_i in self.encoder_skips:
                 skip_x.append(x)
             x = block_op(x, batch)
-            print("X_interme_enc: ", x.shape) # Features encoder
-            #if block_i == config_data.hd_block_stop and config.train_hd:
-            #    flag_break = True
-            #    break
+            #print("X_interme_enc: ", x.shape) # Features encoder
             
-        
-        if not flag_break:
-            for block_i, block_op in enumerate(self.decoder_blocks):
+        continue_dec = (((-2)*(config_data.hd_block_stop - 2))/3) + 8
+
+        for block_i, block_op in enumerate(self.decoder_blocks):
+            if block_i >= continue_dec:
                 if block_i in self.decoder_concats:
                     x = torch.cat([x, skip_x.pop()], dim=1)
                 x = block_op(x, batch)
-                print("X_interme_dec: ", x.shape) Features decoder
+                #print("X_interme_dec: ", x.shape) #Features decoder
+            else:
+                continue
 
-            # Head of network
-            x = self.head_mlp(x, batch)
-            #print("X_fin: ", x.shape)
+        # Head of network
+        #x = self.head_mlp(x, batch)
+        #print("X_fin: ", x.shape)
         
-        if flag_break:
-            print("x:", x.shape)
-            print("labels:", batch.labels.shape)
-            dataset = CustomDataset(x, batch.labels)
-            x_ld = torch.utils.data.DataLoader(dataset, batch_size=config_data.trainer.batch_size, shuffle=True)
-            hd_model.fit(x_ld)
-            x = hd_model(x_ld)
+        print("x:", x.shape)
+        print("labels:", batch.labels.shape)
+        dataset = CustomDataset(x, batch.labels)
+        x_ld = torch.utils.data.DataLoader(dataset, batch_size=config_data.trainer.batch_size, shuffle=True)
+        hd_model.fit(x_ld)
+        x = hd_model(x_ld)
         
         print("X_fin_hd: ", x.shape)
         x = self.head_softmax(x, batch)
