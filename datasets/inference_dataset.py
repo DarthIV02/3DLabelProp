@@ -113,7 +113,7 @@ class InferenceDataset:
         self.ref_dataset = ref_dataset 
         self.trg_datast = trg_datast 
         self.save = osp.join(self.config.save_pred_path,self.trg_datast.config.data.name) # self.config.logger.model_name
-        self.n_label = self.ref_dataset.get_n_label()
+        self.n_label = self.trg_datast.get_n_label()
         self.model = model 
         if torch.cuda.is_available():
             self.device = torch.device("cuda:0")
@@ -134,9 +134,9 @@ class InferenceDataset:
 
 
     def compute_results(self):
-        if self.config.source == "semantickitti":
+        if self.config.target == "semantickitti":
             from mapping.sk import map
-        elif self.config.source == "nuscenes":
+        elif self.config.target == "nuscenes":
             from mapping.ns import map
 
         if "pandaset" in self.config.target:
@@ -145,6 +145,7 @@ class InferenceDataset:
             mapping = map[self.config.target]
         labels = mapping["labels_name"]
         n_labels = len(labels)
+        print("n_labels: ", n_labels)
         source_mapping = np.zeros(len(list(mapping['source_to_common'].keys()))+1) -1
         target_mapping = np.zeros(len(list(mapping['target_to_common'].keys()))+1) -1
         for key in mapping['source_to_common']:
