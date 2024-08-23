@@ -40,7 +40,6 @@ def confmat_computations_parallel(frame_list,label_list=np.arange(-1,19),n_proce
     global compute_conf_mat
     def compute_conf_mat(frame):
         results = np.load(frame)
-        print(results.shape)
         #print(np.bincount(results[:,-1].astype(np.int32)+1))
         #print(np.bincount(results[:,0].astype(np.int32)+1))
         #print(target_mapping)
@@ -145,7 +144,6 @@ class InferenceDataset:
             mapping = map[self.config.target]
         labels = mapping["labels_name"]
         n_labels = len(labels)
-        print("n_labels: ", n_labels)
         source_mapping = np.zeros(len(list(mapping['source_to_common'].keys()))+1) -1
         target_mapping = np.zeros(len(list(mapping['target_to_common'].keys()))+1) -1
         for key in mapping['source_to_common']:
@@ -155,9 +153,7 @@ class InferenceDataset:
         conf_mat = np.zeros((n_labels,n_labels))
         for i in range(len(self.trg_datast.sequence)):
             seq = self.trg_datast.sequence[i]
-            #print(self.trg_datast.__dict__)
             seq_path = osp.join(self.save, seq)
-            print(seq_path)
             file_list = [os.path.join(seq_path,f) for f in  os.listdir(seq_path)]
             conf_mat += confmat_computations_parallel(file_list, np.arange(0,n_labels),20,source_mapping=source_mapping,target_mapping=target_mapping)
         ius = per_class_iu(conf_mat)
@@ -194,13 +190,12 @@ class InferenceDataset:
         #len_seq = 1000
         st_real = False
         for st in start:
-            for frame in tqdm(range(st,len_seq,len(start)),leave=False,desc="Sequence: " + str(self.trg_datast.sequence[seq_number]) + ", subsample number " +str(st+1)+"/"+str(len(start))):                
+            for frame in tqdm(range(st,20,len(start)),leave=False,desc="Sequence: " + str(self.trg_datast.sequence[seq_number]) + ", subsample number " +str(st+1)+"/"+str(len(start))): # len_seq                
                 try:                    
                     pointcloud, label = self.trg_datast.loader(seq,frame)
-                    print("label on inference: ", label.shape)
                     
                     if st_real: # frame>st
-                        raise Exception("Just one for now") # This needs to be removed
+                        #raise Exception("Just one for now") # This needs to be removed
                         #Check if the sensor moved more than min_dist_mvt
                         if np.linalg.norm(local_trans - trans[frame-lastIndex]) < self.config.sequence.min_dist_mvt:
                             accumulated_pointcloud = accumulated_pointcloud[:-len(pointcloud)]
