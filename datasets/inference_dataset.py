@@ -44,8 +44,8 @@ def confmat_computations_parallel(frame_list,label_list=np.arange(-1,19),n_proce
         #print(np.bincount(results[:,0].astype(np.int32)+1))
         #print(target_mapping)
         #print(source_mapping)
-        gt = target_mapping[results[:,-1].astype(np.int32)+1]
-        pred = target_mapping[results[:,0].astype(np.int32)+1] # prev source_mapping
+        gt = target_mapping[results[:,-1].astype(np.int32)+1] # target_mapping[
+        pred = target_mapping[results[:,0].astype(np.int32)+1] # prev source_mapping target_mapping[
         c_mat = confusion_matrix(gt,pred,labels=label_list)
         return c_mat
     
@@ -190,7 +190,7 @@ class InferenceDataset:
         #len_seq = 1000
         st_real = False
         for st in start:
-            for frame in tqdm(range(st,20,len(start)),leave=False,desc="Sequence: " + str(self.trg_datast.sequence[seq_number]) + ", subsample number " +str(st+1)+"/"+str(len(start))): # len_seq                
+            for frame in tqdm(range(st,5,len(start)),leave=False,desc="Sequence: " + str(self.trg_datast.sequence[seq_number]) + ", subsample number " +str(st+1)+"/"+str(len(start))): # len_seq                
                 try:                    
                     pointcloud, label = self.trg_datast.loader(seq,frame)
                     

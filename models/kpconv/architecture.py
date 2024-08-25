@@ -388,7 +388,7 @@ class KPFCNN(nn.Module):
         encoded = hd_model.encoder(x)
         print("Encoded", encoded.shape)
         print("Weights", hd_model.model.weight.shape)
-        y = functional.cosine_similarity(encoded.reshape(-1,1), hd_model.model.weight)
+        y = functional.cosine_similarity(encoded, hd_model.model.weight)
         
         print("y", y.shape)
         #print("X_fin_hd: ", x.shape)
