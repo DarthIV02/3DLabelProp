@@ -57,15 +57,27 @@ class OnlineHD(Classifier):
         self.encoder = Sinusoid(n_features, n_dimensions, device=device, dtype=dtype)
         self.model = Centroid(n_dimensions, n_classes, device=device, dtype=dtype)
 
-    def fit(self, data_loader: DataLoader):
+    def fit(self, samples, labels):
 
         for _ in trange(self.epochs, desc="fit"):
-            for samples, labels in data_loader:
-                if labels != -1:
-                    samples = samples.to(self.device)
-                    labels = labels.to(self.device)
+            
+            print(samples.shape)
+            
+            ignores = labels == -1
+            print(ignores)
+            print(labels)
+            
+            pad = torch.zeros(torch.sum(ignores), samples.shape[1], device=self.device)
+            print(pad.shape)
+            
+            samples[ignores] = pad
+                
+            #samples = samples.to(self.device)
+            #labels = labels.to(self.device)
 
-                    encoded = self.encoder(samples)
-                    self.model.add_online(encoded, labels, lr=self.lr)
+            encoded = self.encoder(samples)
+            print("Encoded")
+            self.model.add_online(encoded, labels, lr=self.lr)
+            print("Finish fit")
 
         return self

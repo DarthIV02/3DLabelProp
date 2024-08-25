@@ -65,9 +65,9 @@ def infer_concat_kp(model,clusters,device,config_model,batch_size,config_data, h
         if 'cuda' in device.type:
             r_clouds.to(device)
         outputs = smax(model.model(r_clouds, config_model, config_data, hd_model, labels)) # This are the individual predictions
-        print(r_clouds.labels.shape)
-        print("Output here?")
-        print(outputs.shape)
+        #print(r_clouds.labels.shape)
+        #print("Output here?")
+        #EWprint(outputs.shape)
         pred = outputs.detach().cpu().numpy()
         del outputs
         preds = []
@@ -253,9 +253,9 @@ class InferenceDataset:
                     # Predictions are made here :0
 
                     total_pred = self.infer_concat(self.model,[accumulated_pointcloud[c] for c in clusters],self.device,self.cfg_model,  1, self.config, self.hd_model, label) # Change 1 to change the batch size
-                    print("Total_Pred")
-                    print(len(total_pred))
-                    print(total_pred[0].shape)
+                    #print("Total_Pred")
+                    #print(len(total_pred))
+                    #print(total_pred[0].shape)
                     predicted_cloudwise = np.zeros((len(accumulated_pointcloud),self.n_label+1))
                     for i in range(len(clusters)):
                         predicted_cloudwise[clusters[i],1:self.n_label+1] = np.maximum(total_pred[i],predicted_cloudwise[clusters[i],1:self.n_label+1])
