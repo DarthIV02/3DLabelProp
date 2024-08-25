@@ -1,0 +1,89 @@
+import importlib
+import argparse
+from omegaconf import OmegaConf
+import os.path as osp
+from datasets.inference_dataset import *
+from datasets import *
+import torch 
+
+args = {'source': 'nuscenes', 'target': 'semantickitti', 'cluster_cfg': './cfg/clust_cfg/cluster_20.yaml', 
+        'model_cfg': './cfg/model_cfg/kp_sk_infer.yaml', 'data_cfg_path': './cfg/data_cfg', 'subsample': 1, 
+        'save_pred_path': '/root/main/3DLabelProp/results_3DLabelProp', 'train_hd': True, 'test_hd': False, 
+        'hd_param': './cfg/hd_param.yaml'}
+
+cfg = OmegaConf.create(args)
+cluster_cfg = OmegaConf.load(cfg.cluster_cfg)
+model_cfg = OmegaConf.load(cfg.model_cfg)
+cfg = OmegaConf.merge(cfg,cluster_cfg,model_cfg)
+
+if __name__ == "__main__":
+    #Get info relative to the set
+    if cfg.source == "semantickitti":
+        source_data_cfg = OmegaConf.load(osp.join(cfg.data_cfg_path,"semantic-kitti.yaml"))
+        train_set = SemanticKITTI(source_data_cfg,'train')
+    elif cfg.source == "nuscenes":
+        source_data_cfg = OmegaConf.load(osp.join(cfg.data_cfg_path,"nuscenes.yaml"))
+        train_set = nuScenes(source_data_cfg,'train')
+    else:
+        raise  NameError('source dataset not supported')
+
+    if cfg.target == "semantickitti":
+        target_data_cfg = OmegaConf.load(osp.join(cfg.data_cfg_path,"semantic-kitti.yaml"))
+        train_set_2 = SemanticKITTI(target_data_cfg,'train')
+    elif cfg.target == "nuscenes":
+        target_data_cfg = OmegaConf.load(osp.join(cfg.data_cfg_path,"nuscenes.yaml"))
+        train_set_2 = nuScenes(target_data_cfg,'train')
+    elif cfg.target == "semanticposs":
+        target_data_cfg = OmegaConf.load(osp.join(cfg.data_cfg_path,"semanticposs.yaml"))
+        train_set_2 = SemanticPOSS(target_data_cfg,'train')
+    elif cfg.target == "semantickitti-nuscenes":
+        target_data_cfg = OmegaConf.load(osp.join(cfg.data_cfg_path,"semantic-kitti-nuscenes.yaml"))
+        train_set_2 = SemanticKITTI_Nuscenes(target_data_cfg,'train')
+    elif "pandaset" in cfg.target:
+        target_data_cfg = OmegaConf.load(osp.join(cfg.data_cfg_path,cfg.target+".yaml"))
+        train_set_2 = Pandaset(target_data_cfg,'train')
+    
+    else:
+        raise  NameError('target dataset not supported')
+
+    #Get info relative to the model
+    if cfg.architecture.model == "KPCONV":
+        module = importlib.import_module('models.kpconv.kpconv')
+        model_information = getattr(module, cfg.architecture.type)()
+        model_information.num_classes = train_set.get_n_label()
+        model_information.ignore_label = -1
+        model_information.in_features_dim = model_cfg.architecture.n_features
+        model_information.train_hd = cfg.train_hd
+        from models.kpconv_model import SemanticSegmentationModel
+        module = importlib.import_module('models.kpconv.architecture')
+        model_type = getattr(module, cfg.architecture.type)
+        model = SemanticSegmentationModel(model_information,cfg,model_type)
+    elif cfg.architecture.model == "SPVCNN":
+        module = importlib.import_module('models.spvcnn.spvcnn')
+        model_information = getattr(module, cfg.architecture.type)
+        model_information.num_classes = train_set.get_n_label()
+        model_information.ignore_label = -1
+        model_information.in_features_dim = model_cfg.architecture.n_features
+        from models.spvcnn_model import SemanticSegmentationSPVCNNModel
+        model = SemanticSegmentationSPVCNNModel(model_information,cfg)
+    else:
+        raise  NameError('model not supported')
+        
+    # Get HD info
+    if cfg.train_hd or cfg.test_hd:
+        hd_cfg = OmegaConf.load(cfg.hd_param)
+        cfg = OmegaConf.merge(cfg,hd_cfg) 
+        from models.HD import OnlineHD
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        model_hd = OnlineHD(hd_cfg.n_features, hd_cfg.n_dimensions, hd_cfg.n_classes, epochs = hd_cfg.epochs, device=device)
+        
+    #print(cfg.hd_block_stop) #The parameters of hd are now part of cfg
+
+    output_dataset = InferenceDataset(cfg,train_set,train_set_2,model, model_information, model_hd)
+    #try:
+    #    ius, miu = valid_dataset.compute_results()
+    #except:
+    output_dataset.compute_dataset()
+    ius, miu = output_dataset.compute_results() # The results are already there?
+    print(ius)
+    print(miu)
