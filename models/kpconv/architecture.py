@@ -19,6 +19,7 @@ import numpy as np
 from torch import nn
 import torch
 from torch.utils.data import Dataset, DataLoader
+import torchhd.functional as functional
 
 __all__ = ['KPFCNN']
 
@@ -383,13 +384,18 @@ class KPFCNN(nn.Module):
         hd_model.fit(x, batch.labels)
         print(x.shape)
         print(x[0].shape)
-        y = functional.cosine_similarity(x, hd_model.model.weight)
+        x = x.to(hd_model.device)
+        encoded = hd_model.encoder(x)
+        print("Encoded", encoded.shape)
+        print("Weights", hd_model.model.weight.shape)
+        y = functional.cosine_similarity(encoded.reshape(-1,1), hd_model.model.weight)
         
+        print("y", y.shape)
         #print("X_fin_hd: ", x.shape)
         #x = self.head_softmax(x, batch)
         #print("X_fin: ", x.shape)
 
-        return x
+        return y
 
     def loss(self, outputs, labels):
         """
