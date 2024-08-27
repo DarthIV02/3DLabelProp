@@ -83,6 +83,18 @@ def infer_concat_kp(model,clusters,device,config_model,batch_size,config_data, h
         torch.cuda.empty_cache()
     return cluster_outputs_proba 
 
+def train_hd_concat_kp(model,clusters,device,config_model,batch_size,config_data, hd_model=None, labels=None): # This is the model that runs the inference
+    smax = torch.nn.Softmax(dim=1)
+    cluster_outputs_proba = []
+    for k in range(len(clusters)//batch_size+(len(clusters)%batch_size!=0)):
+        l=0
+        sub_clusters = clusters[k*batch_size:min((k+1)*batch_size,len(clusters))]
+        r_clouds, r_inds_list = model.prepare_data(sub_clusters,False,True)
+        if 'cuda' in device.type:
+            r_clouds.to(device)
+        model.model.train_hd(r_clouds, config_model, config_data, hd_model, labels) # This are the individual predictions
+    return
+
 def infer_concat_spv(model,clusters,device,config_model,batch_size):
     smax = torch.nn.Softmax(dim=1)
     cluster_outputs_proba = []
@@ -127,7 +139,10 @@ class InferenceDataset:
         self.model.model.eval()
         self.cfg_model = config_model
         if self.config.architecture.model == "KPCONV":
-            self.infer_concat = infer_concat_kp
+            if config.train_hd:
+                self.infer_concat = train_hd_concat_kp
+            else:
+                self.infer_concat = infer_concat_kp
         elif self.config.architecture.model == "KPCONV":
             self.infer_concat = infer_concat_spv
         self.hd_model = hd_model
@@ -165,6 +180,11 @@ class InferenceDataset:
         print("Sequence: ", self.trg_datast.sequence)
         for i in tqdm(range(len(self.trg_datast.sequence)),desc="Processing dataset "+str(self.config.target)):
             self.compute_sequence(i)
+            
+    def compute_hd_dataset(self):
+        print("Sequence: ", self.trg_datast.sequence)
+        for i in tqdm(range(len(self.trg_datast.sequence)),desc="Processing dataset "+str(self.config.target)):
+            self.train_hd_sequence(i)
 
     def compute_sequence(self,seq_number):
         #if osp.exists(osp.join(self.save,self.trg_datast.sequence[seq_number])): # This was commented to reduce the amount of times that the data is calculated
@@ -280,4 +300,94 @@ class InferenceDataset:
                 except OSError as e: # Values are not found
                     
                     continue
+                    
+    def train_hd_sequence(self,seq_number):
+
+        #init accumulated arrays
+        accumulated_pointcloud = np.empty((0,6))
+        accumulated_confidence = np.empty(0, dtype=np.float)
+
+        #get slam poses
+        rot, trans = self.trg_datast.get_poses_seq(seq_number)
+
+        #get sequence information
+        len_seq = self.trg_datast.get_size_seq(seq_number)
+        seq = self.trg_datast.sequence[seq_number]
+        
+        #accumulate
+        lastIndex = 1
+        local_limit = self.config.sequence.limit_GT_time
+        start = [i for i in range(self.config.subsample)]
+        #len_seq = 1000
+        st_real = False
+        for st in start:
+            for frame in tqdm(range(st,5,len(start)),leave=False,desc="Sequence: " + str(self.trg_datast.sequence[seq_number]) + ", subsample number " +str(st+1)+"/"+str(len(start))): # len_seq                
+                try:                    
+                    pointcloud, label = self.trg_datast.loader(seq,frame)
+                    
+                    if st_real: # frame>st
+                        #raise Exception("Just one for now") # This needs to be removed
+                        #Check if the sensor moved more than min_dist_mvt
+                        if np.linalg.norm(local_trans - trans[frame-lastIndex]) < self.config.sequence.min_dist_mvt:
+                            accumulated_pointcloud = accumulated_pointcloud[:-len(pointcloud)]
+                            accumulated_confidence = accumulated_confidence[:-len(pointcloud)]
+                            local_limit += 1
+                            lastIndex += 1
+                        else:
+                            lastIndex =1
+
+                        #voxelize the past sequence and remove old points
+                        if len(accumulated_pointcloud) > 0:
+                            accumulated_pointcloud, accumulated_confidence = grid_subsample(accumulated_pointcloud, accumulated_confidence, self.config.sequence.subsample)
+                            accumulated_confidence = accumulated_confidence[accumulated_pointcloud[:,-1] > frame - local_limit]
+                            accumulated_pointcloud = accumulated_pointcloud[accumulated_pointcloud[:,-1] > frame - local_limit]
+
+                    # norm_curr = np.linalg.norm(pointcloud[:,:3],axis=1)
+                    # pointcloud = pointcloud[norm_curr>0]
+                    # label = label[norm_curr>0]
+                    # norm_curr = np.linalg.norm(pointcloud[:,:3],axis=1)
+                    # pointcloud = pointcloud[norm_curr<75]
+                    # label = label[norm_curr<75]
+
+                    local_rot, local_trans = rot[frame], trans[frame]
+
+                    #add channel for semantic and for timestamp
+                    pointcloud = np.hstack((pointcloud[:,:4],label.reshape(-1,1),np.zeros(len(pointcloud)).reshape(-1,1)+frame)) # np.zeros(len(pointcloud)).reshape(-1,1)-1
+                    pointcloud = apply_transformation(pointcloud, (local_rot, local_trans))
+
+                    #remove accumulated points too far from the center
+                    if len(accumulated_pointcloud)>0:
+                        center_current = np.mean(pointcloud[:,:2],axis=0)
+                        norm_acc = np.linalg.norm(accumulated_pointcloud[:,:2]-center_current,axis=1)
+                        accumulated_pointcloud = accumulated_pointcloud[norm_acc<self.config.sequence.limit_GT]
+                        accumulated_confidence = accumulated_confidence[norm_acc<self.config.sequence.limit_GT]
+
+                    accumulated_pointcloud = np.vstack((accumulated_pointcloud,pointcloud))
+                    accumulated_confidence = accumulated_confidence.reshape((accumulated_confidence.shape[0]))
+                    #print("4: ", accumulated_confidence.shape, "\n")
+                    #print("zeros: ", np.zeros(len(pointcloud)).shape, "\n")
+                    accumulated_confidence = np.concatenate((accumulated_confidence,np.zeros(len(pointcloud))))
+
+                    acc_label = np.copy(accumulated_pointcloud[:,4].astype(np.int32))
+                    acc_label, new_conf = compute_labels(accumulated_pointcloud, acc_label, accumulated_confidence, len(pointcloud), self.config.sequence.voxel_size, self.n_label, self.config.source, self.config.sequence.dist_prop)
+
+
+                    dynamic_indices = np.where(self.ref_dataset.get_dynamic(acc_label))[0]
+                    dynamic_current = dynamic_indices[dynamic_indices > (len(acc_label) - len(label))]
+                    acc_label[dynamic_current] = -1
+                    new_conf[dynamic_current] = 0
+
+                    clusters = cluster(accumulated_pointcloud, acc_label, len(pointcloud), self.config.cluster.voxel_size, self.config.cluster.n_centroids, 'Kmeans')
+                    clusters = list(filter(lambda e: len(e)>1,clusters))
+                    clusters = [np.array(c) for c in clusters]
+
+                    # Predictions are made here :0
+
+                    total_pred = self.infer_concat(self.model,[accumulated_pointcloud[c] for c in clusters],self.device,self.cfg_model,  1, self.config, self.hd_model, label) # Change 1 to change the batch size
+                    
+                    st_real = True
+                
+                except OSError as e: # Values are not found
+                    
+                    continue             
 
