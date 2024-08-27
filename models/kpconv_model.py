@@ -119,10 +119,10 @@ class SemanticSegmentationModel:
     def __init__(self, model_config, config, model=None):
         lbl_values = [i for i in range(model_config.num_classes)]
         ign_lbls = [model_config.ignore_label]
-        if torch.cuda.is_available():  
-            dev = "cuda:0" 
-        else:
-            dev = "cpu"
+        #if torch.cuda.is_available(): # Change to cuda
+        #    dev = "cuda:0" 
+        #else:
+        dev = "cpu"
         self.device = torch.device(dev) 
         if model == None:
             self.model = KPFCNN(model_config, lbl_values, ign_lbls) 

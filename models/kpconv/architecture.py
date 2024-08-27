@@ -341,24 +341,24 @@ class KPFCNN(nn.Module):
         # Get input features
         x = batch.features.clone().detach()
         
-        #print("TrainHD?: ", config.train_hd) # Config is sampled in the initial test script
+        print("TrainHD?: ", config_data.test_hd) # Config is sampled in the initial test script
         #if config.train_hd:
         #    print(hd_model.lr)
         #print("X_init: ", len(batch.points))
         #print(batch.points[0].shape)
         #print(batch.__dict__) # batch is where the data of the subsample is :) and x is just a place to dump the features result
         #print(batch.labels.shape)
-        #print(x[:, 0].shape)
+        print(x[:, 0].shape)
 
         # Loop over consecutive blocks
         skip_x = []
         for block_i, block_op in enumerate(self.encoder_blocks):
-            if block_i == config_data.hd_block_stop and config.train_hd:
+            if block_i == config_data.hd_block_stop and config_data.test_hd:
                 break
             if block_i in self.encoder_skips:
                 skip_x.append(x)
             x = block_op(x, batch)
-            #print("X_interme_enc: ", x.shape) # Features encoder
+            print("X_interme_enc: ", x.shape) # Features encoder
             
         continue_dec = (((-2)*(config_data.hd_block_stop - 2))/3) + 8
 

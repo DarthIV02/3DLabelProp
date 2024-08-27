@@ -147,7 +147,6 @@ class InferenceDataset:
             self.infer_concat = infer_concat_spv
         self.hd_model = hd_model
 
-
     def compute_results(self):
         if self.config.target == "semantickitti":
             from mapping.sk import map
@@ -272,6 +271,8 @@ class InferenceDataset:
                     clusters = [np.array(c) for c in clusters]
 
                     # Predictions are made here :0
+                    
+                    print(self.config.test_hd)
 
                     total_pred = self.infer_concat(self.model,[accumulated_pointcloud[c] for c in clusters],self.device,self.cfg_model,  1, self.config, self.hd_model, label) # Change 1 to change the batch size
                     #print("Total_Pred")
