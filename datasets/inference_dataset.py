@@ -44,8 +44,9 @@ def confmat_computations_parallel(frame_list,label_list=np.arange(-1,19),n_proce
         #print(np.bincount(results[:,0].astype(np.int32)+1))
         #print(target_mapping)
         #print(source_mapping)
-        gt = target_mapping[results[:,-1].astype(np.int32)+1] # target_mapping[
-        pred = target_mapping[results[:,0].astype(np.int32)+1] # prev source_mapping target_mapping[
+        gt = results[:,-1].astype(np.int32)+1 # target_mapping[
+        
+        pred = results[:,0].astype(np.int32)+1 # prev source_mapping target_mapping[
         c_mat = confusion_matrix(gt,pred,labels=label_list)
         return c_mat
     
