@@ -8,7 +8,7 @@ import torch
 
 args = {'source': 'nuscenes', 'target': 'semantickitti', 'cluster_cfg': './cfg/clust_cfg/cluster_20.yaml', 
         'model_cfg': './cfg/model_cfg/kp_sk_infer.yaml', 'data_cfg_path': './cfg/data_cfg', 'subsample': 1, 
-        'save_pred_path': '/root/main/3DLabelProp/results_3DLabelProp', 'train_hd': True, 'test_hd': False, 
+        'save_pred_path': '/root/main/3DLabelProp/results_3DLabelProp', 'train_hd': True, 'test_hd': True, 
         'hd_param': './cfg/hd_param.yaml'}
 
 cfg = OmegaConf.create(args)
@@ -30,18 +30,23 @@ if __name__ == "__main__":
     if cfg.target == "semantickitti":
         target_data_cfg = OmegaConf.load(osp.join(cfg.data_cfg_path,"semantic-kitti.yaml"))
         train_set_2 = SemanticKITTI(target_data_cfg,'train')
+        target_set = SemanticKITTI(target_data_cfg,'valid')
     elif cfg.target == "nuscenes":
         target_data_cfg = OmegaConf.load(osp.join(cfg.data_cfg_path,"nuscenes.yaml"))
         train_set_2 = nuScenes(target_data_cfg,'train')
+        target_set = nuScenes(target_data_cfg,'valid')
     elif cfg.target == "semanticposs":
         target_data_cfg = OmegaConf.load(osp.join(cfg.data_cfg_path,"semanticposs.yaml"))
         train_set_2 = SemanticPOSS(target_data_cfg,'train')
+        target_set = SemanticPOSS(target_data_cfg,'valid')
     elif cfg.target == "semantickitti-nuscenes":
         target_data_cfg = OmegaConf.load(osp.join(cfg.data_cfg_path,"semantic-kitti-nuscenes.yaml"))
         train_set_2 = SemanticKITTI_Nuscenes(target_data_cfg,'train')
+        target_set = SemanticKITTI_Nuscenes(target_data_cfg,'valid')
     elif "pandaset" in cfg.target:
         target_data_cfg = OmegaConf.load(osp.join(cfg.data_cfg_path,cfg.target+".yaml"))
         train_set_2 = Pandaset(target_data_cfg,'train')
+        target_set = Pandaset(target_data_cfg,'valid')
     
     else:
         raise  NameError('target dataset not supported')
@@ -75,15 +80,48 @@ if __name__ == "__main__":
         cfg = OmegaConf.merge(cfg,hd_cfg) 
         from models.HD import OnlineHD
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        #device = torch.device("cpu")
         model_hd = OnlineHD(hd_cfg.n_features, hd_cfg.n_dimensions, hd_cfg.n_classes, epochs = hd_cfg.epochs, device=device)
         
     #print(cfg.hd_block_stop) #The parameters of hd are now part of cfg
-
-    output_dataset = InferenceDataset(cfg,train_set,train_set_2,model, model_information, model_hd)
     #try:
     #    ius, miu = valid_dataset.compute_results()
     #except:
-    output_dataset.compute_dataset()
-    ius, miu = output_dataset.compute_results() # The results are already there?
-    print(ius)
-    print(miu)
+    
+    # Define the path for the "HD" folder
+    hd_folder = os.path.join(cfg.save_pred_path, 'HD')
+    
+    # Define file names for saving the tensors
+    weights_path = os.path.join(hd_folder, 'weights.pt')
+    encoding_path = os.path.join(hd_folder, 'encoding.pt')
+
+    # Check if the "HD" folder exists
+    if not os.path.exists(hd_folder):
+        os.makedirs(hd_folder)
+        print(f"Folder 'HD' created at {hd_folder}")
+    else:
+        print(f"Folder 'HD' already exists at {hd_folder}")
+
+    if cfg.train_hd:
+        
+        output_dataset = InferenceDataset(cfg,train_set,train_set_2, model, model_information, model_hd)
+        
+        output_dataset.compute_hd_dataset()
+
+        # Save the tensors
+        torch.save(model_hd.model.weight, weights_path)
+        torch.save(model_hd.encoder.weight, encoding_path)
+
+        print(f"Tensors saved in {hd_folder}")
+    
+    if cfg.test_hd:
+        
+        model_hd.model.weight = torch.load(weights_path)
+        model_hd.encoder.weight = torch.load(encoding_path)
+        
+        output_dataset_2 = InferenceDataset(cfg, train_set, target_set, model, model_information, model_hd)
+        
+        output_dataset_2.compute_dataset()
+        ius, miu = output_dataset_2.compute_results() # The results are already there?
+        print(ius)
+        print(miu)
