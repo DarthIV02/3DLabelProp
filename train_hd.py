@@ -6,10 +6,9 @@ from datasets.inference_dataset import *
 from datasets import *
 import torch 
 
-args = {'source': 'nuscenes', 'target': 'semantickitti', 'cluster_cfg': './cfg/clust_cfg/cluster_20.yaml', 
-        'model_cfg': './cfg/model_cfg/kp_sk_infer.yaml', 'data_cfg_path': './cfg/data_cfg', 'subsample': 1, 
-        'save_pred_path': '/root/main/3DLabelProp/results_3DLabelProp', 'train_hd': True, 'test_hd': True, 
-        'hd_param': './cfg/hd_param.yaml'}
+parser = argparse.ArgumentParser()
+parser.add_argument('-cfg', '--config', help='the path to the setup config file', default='cfg/train_sk.yaml')
+args = parser.parse_args()
 
 cfg = OmegaConf.create(args)
 cluster_cfg = OmegaConf.load(cfg.cluster_cfg)
