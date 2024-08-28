@@ -267,7 +267,7 @@ class InferenceDataset:
                     clusters = [np.array(c) for c in clusters]
 
                     # Predictions are made here :0
-                    total_pred = self.infer_concat(self.model,[accumulated_pointcloud[c] for c in clusters],self.device,self.cfg_model,  20, self.config, self.hd_model, label) # Change 1 to change the batch size
+                    total_pred = self.infer_concat(self.model,[accumulated_pointcloud[c] for c in clusters],self.device,self.cfg_model, 10, self.config, self.hd_model, label) # Change 1 to change the batch size
                     predicted_cloudwise = np.zeros((len(accumulated_pointcloud),self.n_label+1))
                     for i in range(len(clusters)):
                         predicted_cloudwise[clusters[i],1:self.n_label+1] = np.maximum(total_pred[i],predicted_cloudwise[clusters[i],1:self.n_label+1])
@@ -364,7 +364,7 @@ class InferenceDataset:
 
                     # Predictions are made here :0
 
-                    self.infer_concat_train(self.model,[accumulated_pointcloud[c] for c in clusters],self.device,self.cfg_model,  20 , self.config, self.hd_model, label) # Change 1 to change the batch size
+                    self.infer_concat_train(self.model,[accumulated_pointcloud[c] for c in clusters],self.device,self.cfg_model, 10 , self.config, self.hd_model, label) # Change 1 to change the batch size
 
                     st_real = True
 
