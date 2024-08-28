@@ -341,14 +341,14 @@ class KPFCNN(nn.Module):
         # Get input features
         x = batch.features.clone().detach()
         
-        print("TrainHD?: ", config_data.test_hd) # Config is sampled in the initial test script
+        #print("TrainHD?: ", config_data.test_hd) # Config is sampled in the initial test script
         #if config.train_hd:
         #    print(hd_model.lr)
         #print("X_init: ", len(batch.points))
         #print(batch.points[0].shape)
         #print(batch.__dict__) # batch is where the data of the subsample is :) and x is just a place to dump the features result
         #print(batch.labels.shape)
-        print(x[:, 0].shape)
+        #print(x[:, 0].shape)
 
         # Loop over consecutive blocks
         skip_x = []
@@ -358,7 +358,7 @@ class KPFCNN(nn.Module):
             if block_i in self.encoder_skips:
                 skip_x.append(x)
             x = block_op(x, batch)
-            print("X_interme_enc: ", x.shape) # Features encoder
+            #print("X_interme_enc: ", x.shape) # Features encoder
             
         continue_dec = (((-2)*(config_data.hd_block_stop - 2))/3) + 8
 
@@ -382,17 +382,17 @@ class KPFCNN(nn.Module):
         #dataset = CustomDataset(x, batch.labels) # .astype('int64')
         #x_ld = torch.utils.data.DataLoader(dataset, batch_size=config_data.trainer.batch_size, shuffle=True)
         #hd_model.fit(x, batch.labels)
-        print(x.shape)
-        print(x[0].shape)
+        #print(x.shape)
+        #print(x[0].shape)
         x = x.to(hd_model.device)
         encoded = hd_model.encoder(x)
-        print("Encoded", encoded.shape)
-        print("Weights", hd_model.model.weight.shape)
+        #print("Encoded", encoded.shape)
+        #print("Weights", hd_model.model.weight.shape)
         y = functional.cosine_similarity(encoded, hd_model.model.weight)
         
-        print("y", y.shape)
-        print("All equal?", torch.all(torch.argmax(y) == torch.argmax(y).flatten()[0]))
-        print("Infered:", torch.argmax(y).flatten()[0])
+        #print("y", y.shape)
+        #print("All equal?", torch.all(torch.argmax(y) == torch.argmax(y).flatten()[0]))
+        #print("Infered:", torch.argmax(y).flatten()[0])
         #print("X_fin_hd: ", x.shape)
         #x = self.head_softmax(x, batch)
         #print("X_fin: ", x.shape)
