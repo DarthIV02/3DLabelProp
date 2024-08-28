@@ -13,6 +13,7 @@ echo Y | pip install -r requirements.txt
 echo Y | conda install pytorch==1.7.1 torchvision torchaudio cudatoolkit=11.0 -c pytorch
 pip install torch-sparse
 pip install pybind11
+pip install chardet
 cd cpp_wrappers
 bash compile_wrappers.sh
 pip install --force-reinstall torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu117
