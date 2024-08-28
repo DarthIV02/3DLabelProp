@@ -140,9 +140,8 @@ class InferenceDataset:
         self.cfg_model = config_model
         if self.config.architecture.model == "KPCONV":
             if config.train_hd:
-                self.infer_concat = train_hd_concat_kp
-            else:
-                self.infer_concat = infer_concat_kp
+                self.infer_concat_train = train_hd_concat_kp
+            self.infer_concat = infer_concat_kp
         elif self.config.architecture.model == "KPCONV":
             self.infer_concat = infer_concat_spv
         self.hd_model = hd_model
@@ -210,7 +209,7 @@ class InferenceDataset:
         #len_seq = 1000
         st_real = False
         for st in start:
-            for frame in tqdm(range(st,5,len(start)),leave=False,desc="Sequence: " + str(self.trg_datast.sequence[seq_number]) + ", subsample number " +str(st+1)+"/"+str(len(start))): # len_seq                
+            for frame in tqdm(range(st,10,len(start)),leave=False,desc="Sequence: " + str(self.trg_datast.sequence[seq_number]) + ", subsample number " +str(st+1)+"/"+str(len(start))): # len_seq                
                 try:                    
                     pointcloud, label = self.trg_datast.loader(seq,frame)
                     
@@ -279,6 +278,9 @@ class InferenceDataset:
                     #print(len(total_pred))
                     #print(total_pred[0].shape)
                     predicted_cloudwise = np.zeros((len(accumulated_pointcloud),self.n_label+1))
+                    print(predicted_cloudwise)
+                    print(clusters[0])
+                    print(total_pred[0])
                     for i in range(len(clusters)):
                         predicted_cloudwise[clusters[i],1:self.n_label+1] = np.maximum(total_pred[i],predicted_cloudwise[clusters[i],1:self.n_label+1])
 
@@ -384,7 +386,7 @@ class InferenceDataset:
 
                     # Predictions are made here :0
 
-                    total_pred = self.infer_concat(self.model,[accumulated_pointcloud[c] for c in clusters],self.device,self.cfg_model,  1, self.config, self.hd_model, label) # Change 1 to change the batch size
+                    total_pred = self.infer_concat_train(self.model,[accumulated_pointcloud[c] for c in clusters],self.device,self.cfg_model,  1, self.config, self.hd_model, label) # Change 1 to change the batch size
                     
                     st_real = True
                 
