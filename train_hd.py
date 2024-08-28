@@ -83,7 +83,7 @@ if __name__ == "__main__":
         model_hd = OnlineHD(hd_cfg.n_features, hd_cfg.n_dimensions, hd_cfg.n_classes, epochs = hd_cfg.epochs, device=device)
     
     # Define the path for the "HD" folder
-    hd_folder = os.path.join(cfg.save_pred_path, 'HD')
+    hd_folder = os.path.join(cfg.save_pred_path, f'HD_{hd_cfg.hd_block_stop}')
     
     # Define file names for saving the tensors
     weights_path = os.path.join(hd_folder, 'weights.pt')
