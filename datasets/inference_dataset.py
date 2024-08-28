@@ -66,9 +66,6 @@ def infer_concat_kp(model,clusters,device,config_model,batch_size,config_data, h
         if 'cuda' in device.type:
             r_clouds.to(device)
         outputs = smax(model.model(r_clouds, config_model, config_data, hd_model, labels)) # This are the individual predictions
-        #print(r_clouds.labels.shape)
-        #print("Output here?")
-        #EWprint(outputs.shape)
         pred = outputs.detach().cpu().numpy()
         del outputs
         preds = []
@@ -207,13 +204,12 @@ class InferenceDataset:
         local_limit = self.config.sequence.limit_GT_time
         start = [i for i in range(self.config.subsample)]
         #len_seq = 1000
-        st_real = False
         for st in start:
             for frame in tqdm(range(st,10,len(start)),leave=False,desc="Sequence: " + str(self.trg_datast.sequence[seq_number]) + ", subsample number " +str(st+1)+"/"+str(len(start))): # len_seq                
                 try:                    
                     pointcloud, label = self.trg_datast.loader(seq,frame)
                     
-                    if st_real: # frame>st
+                    if frame>st:
                         #raise Exception("Just one for now") # This needs to be removed
                         #Check if the sensor moved more than min_dist_mvt
                         if np.linalg.norm(local_trans - trans[frame-lastIndex]) < self.config.sequence.min_dist_mvt:
@@ -252,8 +248,6 @@ class InferenceDataset:
 
                     accumulated_pointcloud = np.vstack((accumulated_pointcloud,pointcloud))
                     accumulated_confidence = accumulated_confidence.reshape((accumulated_confidence.shape[0]))
-                    #print("4: ", accumulated_confidence.shape, "\n")
-                    #print("zeros: ", np.zeros(len(pointcloud)).shape, "\n")
                     accumulated_confidence = np.concatenate((accumulated_confidence,np.zeros(len(pointcloud))))
 
                     acc_label = np.copy(accumulated_pointcloud[:,4].astype(np.int32))
@@ -270,10 +264,7 @@ class InferenceDataset:
                     clusters = [np.array(c) for c in clusters]
 
                     # Predictions are made here :0
-                    total_pred = self.infer_concat(self.model,[accumulated_pointcloud[c] for c in clusters],self.device,self.cfg_model,  1, self.config, self.hd_model, label) # Change 1 to change the batch size
-                    #print("Total_Pred")
-                    #print(len(total_pred))
-                    #print(total_pred[0].shape)
+                    total_pred = self.infer_concat(self.model,[accumulated_pointcloud[c] for c in clusters],self.device,self.cfg_model,  20, self.config, self.hd_model, label) # Change 1 to change the batch size
                     predicted_cloudwise = np.zeros((len(accumulated_pointcloud),self.n_label+1))
                     for i in range(len(clusters)):
                         predicted_cloudwise[clusters[i],1:self.n_label+1] = np.maximum(total_pred[i],predicted_cloudwise[clusters[i],1:self.n_label+1])
@@ -290,9 +281,6 @@ class InferenceDataset:
                     to_save[:,0] = accumulated_pointcloud[-len(pointcloud):,4].astype(np.int32)
                     to_save[:,-1] = label.astype(np.int32)
                     np.save(osp.join(self.save, seq, str(frame)+'.npy'), to_save)
-                    #print(osp.join(self.save, seq, str(frame)+'.npy'))
-                    
-                    st_real = True
                 
                 except OSError as e: # Values are not found
                     
@@ -316,13 +304,12 @@ class InferenceDataset:
         local_limit = self.config.sequence.limit_GT_time
         start = [i for i in range(self.config.subsample)]
         #len_seq = 1000
-        st_real = False
         for st in start:
             for frame in tqdm(range(st,5,len(start)),leave=False,desc="Sequence: " + str(self.trg_datast.sequence[seq_number]) + ", subsample number " +str(st+1)+"/"+str(len(start))): # len_seq                
                 try:                    
                     pointcloud, label = self.trg_datast.loader(seq,frame)
                     
-                    if st_real: # frame>st
+                    if frame>st: # 
                         #raise Exception("Just one for now") # This needs to be removed
                         #Check if the sensor moved more than min_dist_mvt
                         if np.linalg.norm(local_trans - trans[frame-lastIndex]) < self.config.sequence.min_dist_mvt:
@@ -339,13 +326,6 @@ class InferenceDataset:
                             accumulated_confidence = accumulated_confidence[accumulated_pointcloud[:,-1] > frame - local_limit]
                             accumulated_pointcloud = accumulated_pointcloud[accumulated_pointcloud[:,-1] > frame - local_limit]
 
-                    # norm_curr = np.linalg.norm(pointcloud[:,:3],axis=1)
-                    # pointcloud = pointcloud[norm_curr>0]
-                    # label = label[norm_curr>0]
-                    # norm_curr = np.linalg.norm(pointcloud[:,:3],axis=1)
-                    # pointcloud = pointcloud[norm_curr<75]
-                    # label = label[norm_curr<75]
-
                     local_rot, local_trans = rot[frame], trans[frame]
 
                     #add channel for semantic and for timestamp
@@ -361,8 +341,6 @@ class InferenceDataset:
 
                     accumulated_pointcloud = np.vstack((accumulated_pointcloud,pointcloud))
                     accumulated_confidence = accumulated_confidence.reshape((accumulated_confidence.shape[0]))
-                    #print("4: ", accumulated_confidence.shape, "\n")
-                    #print("zeros: ", np.zeros(len(pointcloud)).shape, "\n")
                     accumulated_confidence = np.concatenate((accumulated_confidence,np.zeros(len(pointcloud))))
 
                     acc_label = np.copy(accumulated_pointcloud[:,4].astype(np.int32))
@@ -380,9 +358,7 @@ class InferenceDataset:
 
                     # Predictions are made here :0
 
-                    total_pred = self.infer_concat_train(self.model,[accumulated_pointcloud[c] for c in clusters],self.device,self.cfg_model,  1, self.config, self.hd_model, label) # Change 1 to change the batch size
-                    
-                    st_real = True
+                    self.infer_concat_train(self.model,[accumulated_pointcloud[c] for c in clusters],self.device,self.cfg_model,  20 , self.config, self.hd_model, label) # Change 1 to change the batch size
                 
                 except OSError as e: # Values are not found
                     

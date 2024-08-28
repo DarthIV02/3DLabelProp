@@ -82,11 +82,6 @@ if __name__ == "__main__":
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         #device = torch.device("cpu")
         model_hd = OnlineHD(hd_cfg.n_features, hd_cfg.n_dimensions, hd_cfg.n_classes, epochs = hd_cfg.epochs, device=device)
-        
-    #print(cfg.hd_block_stop) #The parameters of hd are now part of cfg
-    #try:
-    #    ius, miu = valid_dataset.compute_results()
-    #except:
     
     # Define the path for the "HD" folder
     hd_folder = os.path.join(cfg.save_pred_path, 'HD')
