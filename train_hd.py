@@ -10,7 +10,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-cfg', '--config', help='the path to the setup config file', default='cfg/train_sk.yaml')
 args = parser.parse_args()
 
-cfg = OmegaConf.create(args)
+cfg = OmegaConf.create(args.config)
 cluster_cfg = OmegaConf.load(cfg.cluster_cfg)
 model_cfg = OmegaConf.load(cfg.model_cfg)
 cfg = OmegaConf.merge(cfg,cluster_cfg,model_cfg)
