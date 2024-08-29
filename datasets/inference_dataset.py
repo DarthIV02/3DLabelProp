@@ -213,7 +213,7 @@ class InferenceDataset:
             for st in start:
                 print("Start2")
                 for frame in tqdm(range(st,len_seq,len(start)),leave=False,desc="Sequence: " + str(self.trg_datast.sequence[seq_number]) + ", subsample number " +str(st+1)+"/"+str(len(start))): # len_seq                
-                                        
+                    print("Start3")         
                     pointcloud, label = self.trg_datast.loader(seq,frame)
 
                     print("Start")
