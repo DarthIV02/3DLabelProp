@@ -384,7 +384,7 @@ class InferenceDataset:
 
                     st_real = True
 
-                    if reset % 20 == 19:
+                    if reset % 10 == 9:
                         accumulated_pointcloud = np.empty((0,6))
                         accumulated_confidence = np.empty(0, dtype=np.float)
                         lastIndex = 1
