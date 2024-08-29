@@ -331,6 +331,11 @@ class InferenceDataset:
                     pointcloud, label = self.trg_datast.loader(seq,frame)
                     
                     if st_real: # 
+                        if frame % 500 == 0:
+                            accumulated_pointcloud = accumulated_pointcloud[-len(pointcloud):]
+                            accumulated_confidence = accumulated_confidence[-len(pointcloud):]
+                            lastIndex = 1
+                            local_limit = self.config.sequence.limit_GT_time
                         #raise Exception("Just one for now") # This needs to be removed
                         #Check if the sensor moved more than min_dist_mvt
                         if np.linalg.norm(local_trans - trans[frame-lastIndex]) < self.config.sequence.min_dist_mvt:
@@ -379,7 +384,7 @@ class InferenceDataset:
 
                     # Predictions are made here :0
 
-                    self.infer_concat_train(self.model,[accumulated_pointcloud[c] for c in clusters],self.device,self.cfg_model, 8 , self.config, self.hd_model, label) # Change 1 to change the batch size
+                    self.infer_concat_train(self.model,[accumulated_pointcloud[c] for c in clusters],self.device,self.cfg_model, 16 , self.config, self.hd_model, label) # Change 1 to change the batch size
 
                     st_real = True
 
