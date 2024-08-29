@@ -84,10 +84,6 @@ if __name__ == "__main__":
     
     # Define the path for the "HD" folder
     hd_folder = os.path.join(cfg.save_pred_path, f'HD_{hd_cfg.hd_block_stop}')
-    
-    # Define file names for saving the tensors
-    weights_path = os.path.join(hd_folder, 'weights.pt')
-    encoding_path = os.path.join(hd_folder, 'encoding.pt')
 
     # Check if the "HD" folder exists
     if not os.path.exists(hd_folder):
@@ -100,15 +96,13 @@ if __name__ == "__main__":
         
         output_dataset = InferenceDataset(cfg,train_set,train_set_2, model, model_information, model_hd)
         
-        output_dataset.compute_hd_dataset()
-
-        # Save the tensors
-        torch.save(model_hd.model.weight, weights_path)
-        torch.save(model_hd.encoder.weight, encoding_path)
-
-        print(f"Tensors saved in {hd_folder}")
+        output_dataset.compute_hd_dataset(hd_folder)
     
     if cfg.test_hd:
+
+        # Define file names for saving the tensors
+        weights_path = os.path.join(hd_folder, 'weights_10.pt')
+        encoding_path = os.path.join(hd_folder, 'encoding_10.pt')
         
         model_hd.model.weight = torch.load(weights_path)
         model_hd.encoder.weight = torch.load(encoding_path)

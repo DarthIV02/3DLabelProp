@@ -177,10 +177,18 @@ class InferenceDataset:
         for i in tqdm(range(len(self.trg_datast.sequence)),desc="Processing dataset "+str(self.config.target)):
             self.compute_sequence(i)
             
-    def compute_hd_dataset(self):
-        print("Sequence: ", self.trg_datast.sequence)
+    def compute_hd_dataset(self, hd_folder):
+        print("Current Sequence: ", self.trg_datast.sequence)
+        print(range(len(self.trg_datast.sequence)))
         for i in tqdm(range(len(self.trg_datast.sequence)),desc="Processing dataset "+str(self.config.target)):
             self.train_hd_sequence(i)
+            # Save the tensors\
+            # Define file names for saving the tensors
+            weights_path = os.path.join(hd_folder, f'weights_{i}.pt')
+            encoding_path = os.path.join(hd_folder, f'encoding_{i}.pt')
+            torch.save(self.hd_model.model.weight, weights_path)
+            torch.save(self.hd_model.encoder.weight, encoding_path)
+
 
     def compute_sequence(self,seq_number):
         #if osp.exists(osp.join(self.save,self.trg_datast.sequence[seq_number])): # This was commented to reduce the amount of times that the data is calculated
@@ -371,7 +379,7 @@ class InferenceDataset:
 
                     # Predictions are made here :0
 
-                    self.infer_concat_train(self.model,[accumulated_pointcloud[c] for c in clusters],self.device,self.cfg_model, 2 , self.config, self.hd_model, label) # Change 1 to change the batch size
+                    self.infer_concat_train(self.model,[accumulated_pointcloud[c] for c in clusters],self.device,self.cfg_model, 8 , self.config, self.hd_model, label) # Change 1 to change the batch size
 
                     st_real = True
 
