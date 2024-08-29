@@ -265,7 +265,7 @@ class InferenceDataset:
                     new_conf[dynamic_current] = 0
 
                     #clusters = cluster(accumulated_pointcloud, acc_label, len(pointcloud), self.config.cluster.voxel_size, self.config.cluster.n_centroids, 'Kmeans')
-                    clusters = cluster(pointcloud, acc_label, len(pointcloud), self.config.cluster.voxel_size, self.config.cluster.n_centroids, 'Kmeans')
+                    clusters = cluster(pointcloud, label, len(pointcloud), self.config.cluster.voxel_size, self.config.cluster.n_centroids, 'Kmeans')
                     clusters = list(filter(lambda e: len(e)>1,clusters))
                     clusters = [np.array(c) for c in clusters]
 
