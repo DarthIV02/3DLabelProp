@@ -212,12 +212,11 @@ class InferenceDataset:
         with h5py.File(osp.join(self.save, f'HD_{self.config.hd_block_stop}', seq, 'Pred.h5'), 'w') as hdf_file:
             for st in start:
                 #for frame in tqdm(range(st,len_seq,len(start)),leave=False,desc="Sequence: " + str(self.trg_datast.sequence[seq_number]) + ", subsample number " +str(st+1)+"/"+str(len(start))): # len_seq   
+                print("Start1")
                 for frame in range(st,len_seq,len(start)):            
-                    print("Start3")         
+                    print("Start2")         
                     pointcloud, label = self.trg_datast.loader(seq,frame)
 
-                    print("Start")
-                    
                     if st_real: # frame>st
                         #raise Exception("Just one for now") # This needs to be removed
                         #Check if the sensor moved more than min_dist_mvt
