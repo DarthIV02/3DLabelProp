@@ -215,22 +215,22 @@ class InferenceDataset:
                 #for frame in range(st,len_seq,len(start)):                   
                     pointcloud, label = self.trg_datast.loader(seq,frame)
 
-                    if st_real: # frame>st
+                    #if st_real: # frame>st
                         #raise Exception("Just one for now") # This needs to be removed
                         #Check if the sensor moved more than min_dist_mvt
-                        if np.linalg.norm(local_trans - trans[frame-lastIndex]) < self.config.sequence.min_dist_mvt:
-                            accumulated_pointcloud = accumulated_pointcloud[:-len(pointcloud)]
-                            accumulated_confidence = accumulated_confidence[:-len(pointcloud)]
-                            local_limit += 1
-                            lastIndex += 1
-                        else:
-                            lastIndex =1
+                    #    if np.linalg.norm(local_trans - trans[frame-lastIndex]) < self.config.sequence.min_dist_mvt:
+                    #        accumulated_pointcloud = accumulated_pointcloud[:-len(pointcloud)]
+                    #        accumulated_confidence = accumulated_confidence[:-len(pointcloud)]
+                    #        local_limit += 1
+                    #        lastIndex += 1
+                    #    else:
+                    #        lastIndex =1
 
                         #voxelize the past sequence and remove old points
-                        if len(accumulated_pointcloud) > 0:
-                            accumulated_pointcloud, accumulated_confidence = grid_subsample(accumulated_pointcloud, accumulated_confidence, self.config.sequence.subsample)
-                            accumulated_confidence = accumulated_confidence[accumulated_pointcloud[:,-1] > frame - local_limit]
-                            accumulated_pointcloud = accumulated_pointcloud[accumulated_pointcloud[:,-1] > frame - local_limit]
+                    #    if len(accumulated_pointcloud) > 0:
+                    #        accumulated_pointcloud, accumulated_confidence = grid_subsample(accumulated_pointcloud, accumulated_confidence, self.config.sequence.subsample)
+                    #        accumulated_confidence = accumulated_confidence[accumulated_pointcloud[:,-1] > frame - local_limit]
+                    #        accumulated_pointcloud = accumulated_pointcloud[accumulated_pointcloud[:,-1] > frame - local_limit]
 
                     # norm_curr = np.linalg.norm(pointcloud[:,:3],axis=1)
                     # pointcloud = pointcloud[norm_curr>0]
@@ -246,23 +246,23 @@ class InferenceDataset:
                     pointcloud = apply_transformation(pointcloud, (local_rot, local_trans))
 
                     #remove accumulated points too far from the center
-                    if len(accumulated_pointcloud)>0:
-                        center_current = np.mean(pointcloud[:,:2],axis=0)
-                        norm_acc = np.linalg.norm(accumulated_pointcloud[:,:2]-center_current,axis=1)
-                        accumulated_pointcloud = accumulated_pointcloud[norm_acc<self.config.sequence.limit_GT]
-                        accumulated_confidence = accumulated_confidence[norm_acc<self.config.sequence.limit_GT]
+                    #if len(accumulated_pointcloud)>0:
+                    #    center_current = np.mean(pointcloud[:,:2],axis=0)
+                    #    norm_acc = np.linalg.norm(accumulated_pointcloud[:,:2]-center_current,axis=1)
+                    #    accumulated_pointcloud = accumulated_pointcloud[norm_acc<self.config.sequence.limit_GT]
+                    #    accumulated_confidence = accumulated_confidence[norm_acc<self.config.sequence.limit_GT]
 
-                    accumulated_pointcloud = np.vstack((accumulated_pointcloud,pointcloud))
-                    accumulated_confidence = accumulated_confidence.reshape((accumulated_confidence.shape[0]))
-                    accumulated_confidence = np.concatenate((accumulated_confidence,np.zeros(len(pointcloud))))
+                    #accumulated_pointcloud = np.vstack((accumulated_pointcloud,pointcloud))
+                    #accumulated_confidence = accumulated_confidence.reshape((accumulated_confidence.shape[0]))
+                    #accumulated_confidence = np.concatenate((accumulated_confidence,np.zeros(len(pointcloud))))
 
-                    acc_label = np.copy(accumulated_pointcloud[:,4].astype(np.int32))
-                    acc_label, new_conf = compute_labels(accumulated_pointcloud, acc_label, accumulated_confidence, len(pointcloud), self.config.sequence.voxel_size, self.n_label, self.config.source, self.config.sequence.dist_prop)
+                    #acc_label = np.copy(accumulated_pointcloud[:,4].astype(np.int32))
+                    #acc_label, new_conf = compute_labels(accumulated_pointcloud, acc_label, accumulated_confidence, len(pointcloud), self.config.sequence.voxel_size, self.n_label, self.config.source, self.config.sequence.dist_prop)
 
-                    dynamic_indices = np.where(self.ref_dataset.get_dynamic(acc_label))[0]
-                    dynamic_current = dynamic_indices[dynamic_indices > (len(acc_label) - len(label))]
-                    acc_label[dynamic_current] = -1
-                    new_conf[dynamic_current] = 0
+                    #dynamic_indices = np.where(self.ref_dataset.get_dynamic(acc_label))[0]
+                    #dynamic_current = dynamic_indices[dynamic_indices > (len(acc_label) - len(label))]
+                    #acc_label[dynamic_current] = -1
+                    #new_conf[dynamic_current] = 0
 
                     #clusters = cluster(accumulated_pointcloud, acc_label, len(pointcloud), self.config.cluster.voxel_size, self.config.cluster.n_centroids, 'Kmeans')
                     clusters = cluster(pointcloud, label, len(pointcloud), self.config.cluster.voxel_size, self.config.cluster.n_centroids, 'Kmeans')
