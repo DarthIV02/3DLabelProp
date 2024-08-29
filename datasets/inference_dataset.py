@@ -325,17 +325,13 @@ class InferenceDataset:
         start = [i for i in range(self.config.subsample)]
         #len_seq = 1000
         st_real = False
+        reset = 0
         for st in start:
             for frame in tqdm(range(st,len_seq,len(start)),leave=False,desc="Sequence: " + str(self.trg_datast.sequence[seq_number]) + ", subsample number " +str(st+1)+"/"+str(len(start))): # len_seq                
                 try:                    
                     pointcloud, label = self.trg_datast.loader(seq,frame)
                     
                     if st_real: # 
-                        if frame % 500 == 0:
-                            accumulated_pointcloud = accumulated_pointcloud[-len(pointcloud):]
-                            accumulated_confidence = accumulated_confidence[-len(pointcloud):]
-                            lastIndex = 1
-                            local_limit = self.config.sequence.limit_GT_time
                         #raise Exception("Just one for now") # This needs to be removed
                         #Check if the sensor moved more than min_dist_mvt
                         if np.linalg.norm(local_trans - trans[frame-lastIndex]) < self.config.sequence.min_dist_mvt:
@@ -387,6 +383,15 @@ class InferenceDataset:
                     self.infer_concat_train(self.model,[accumulated_pointcloud[c] for c in clusters],self.device,self.cfg_model, 16 , self.config, self.hd_model, label) # Change 1 to change the batch size
 
                     st_real = True
+
+                    if reset % 20 == 19:
+                        accumulated_pointcloud = np.empty((0,6))
+                        accumulated_confidence = np.empty(0, dtype=np.float)
+                        lastIndex = 1
+                        local_limit = self.config.sequence.limit_GT_time
+                        print("Reseted :0")
+                    
+                    reset += 1
 
                 except OSError as e: # Values are not found
                     
