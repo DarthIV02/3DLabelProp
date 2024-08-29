@@ -390,7 +390,7 @@ class InferenceDataset:
                         lastIndex = 1
                         local_limit = self.config.sequence.limit_GT_time
                         print("Reseted :0")
-                        x = input()
+                        #x = input()
                     
                     reset += 1
 
