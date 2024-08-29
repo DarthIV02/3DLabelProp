@@ -371,7 +371,7 @@ class InferenceDataset:
 
                     # Predictions are made here :0
 
-                    self.infer_concat_train(self.model,[accumulated_pointcloud[c] for c in clusters],self.device,self.cfg_model, 4 , self.config, self.hd_model, label) # Change 1 to change the batch size
+                    self.infer_concat_train(self.model,[accumulated_pointcloud[c] for c in clusters],self.device,self.cfg_model, 2 , self.config, self.hd_model, label) # Change 1 to change the batch size
 
                     st_real = True
 
