@@ -261,7 +261,6 @@ class InferenceDataset:
                     acc_label = np.copy(accumulated_pointcloud[:,4].astype(np.int32))
                     acc_label, new_conf = compute_labels(accumulated_pointcloud, acc_label, accumulated_confidence, len(pointcloud), self.config.sequence.voxel_size, self.n_label, self.config.source, self.config.sequence.dist_prop)
 
-
                     dynamic_indices = np.where(self.ref_dataset.get_dynamic(acc_label))[0]
                     dynamic_current = dynamic_indices[dynamic_indices > (len(acc_label) - len(label))]
                     acc_label[dynamic_current] = -1
@@ -283,6 +282,7 @@ class InferenceDataset:
                     comp_score[comp_score>self.config.cluster.override] = 1 
 
                     print(new_conf.shape)
+                    print(accumulated_pointcloud.shape)
                     print("New Shape")
                     accumulated_pointcloud[-len(pointcloud):,4] = np.where(new_conf[-len(pointcloud):]>comp_score[-len(pointcloud):],acc_label[-len(pointcloud):],pred[-len(pointcloud):])
                     accumulated_confidence[-len(pointcloud):] = np.where(new_conf[-len(pointcloud):]>comp_score[-len(pointcloud):],new_conf[-len(pointcloud):],score[-len(pointcloud):])
