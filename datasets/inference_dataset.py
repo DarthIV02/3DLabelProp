@@ -35,7 +35,7 @@ def per_class_iu(hist):
     with np.errstate(divide='ignore', invalid='ignore'):
         return np.diag(hist) / (hist.sum(1) + hist.sum(0) - np.diag(hist))
 
-def confmat_computations_parallel(frame_list,label_list=np.arange(-1,19),n_process=20,source_mapping=None,target_mapping=None):
+def confmat_computations_parallel(frame_list,label_list=np.arange(-1,19),n_process=8,source_mapping=None,target_mapping=None):
     # n_process was originally 20
     global compute_conf_mat
     def compute_conf_mat(frame):
@@ -267,7 +267,7 @@ class InferenceDataset:
                     clusters = [np.array(c) for c in clusters]
 
                     # Predictions are made here :0
-                    total_pred = self.infer_concat(self.model,[accumulated_pointcloud[c] for c in clusters],self.device,self.cfg_model, 10, self.config, self.hd_model, label) # Change 1 to change the batch size
+                    total_pred = self.infer_concat(self.model,[accumulated_pointcloud[c] for c in clusters],self.device,self.cfg_model, 8, self.config, self.hd_model, label) # Change 1 to change the batch size
                     predicted_cloudwise = np.zeros((len(accumulated_pointcloud),self.n_label+1))
                     for i in range(len(clusters)):
                         predicted_cloudwise[clusters[i],1:self.n_label+1] = np.maximum(total_pred[i],predicted_cloudwise[clusters[i],1:self.n_label+1])
@@ -364,7 +364,7 @@ class InferenceDataset:
 
                     # Predictions are made here :0
 
-                    self.infer_concat_train(self.model,[accumulated_pointcloud[c] for c in clusters],self.device,self.cfg_model, 10 , self.config, self.hd_model, label) # Change 1 to change the batch size
+                    self.infer_concat_train(self.model,[accumulated_pointcloud[c] for c in clusters],self.device,self.cfg_model, 8 , self.config, self.hd_model, label) # Change 1 to change the batch size
 
                     st_real = True
 
