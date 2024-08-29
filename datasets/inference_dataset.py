@@ -277,17 +277,19 @@ class InferenceDataset:
                         predicted_cloudwise[clusters[i],1:self.n_label+1] = np.maximum(total_pred[i],predicted_cloudwise[clusters[i],1:self.n_label+1])
 
                     pred = np.argmax(predicted_cloudwise[:,:self.n_label+1], axis=1) -1
-                    score = np.max(predicted_cloudwise[:,1:self.n_label+1],axis=1)
-                    comp_score = np.copy(score)
-                    comp_score[comp_score>self.config.cluster.override] = 1 
+                    #score = np.max(predicted_cloudwise[:,1:self.n_label+1],axis=1)
+                    #comp_score = np.copy(score)
+                    #comp_score[comp_score>self.config.cluster.override] = 1 
 
-                    print("Accumulated PointCloud:", accumulated_pointcloud.shape)
-                    print("Pointcloud: ", pointcloud.shape)
-                    accumulated_pointcloud[-len(pointcloud):,4] = np.where(new_conf[-len(pointcloud):]>comp_score[-len(pointcloud):],acc_label[-len(pointcloud):],pred[-len(pointcloud):])
-                    accumulated_confidence[-len(pointcloud):] = np.where(new_conf[-len(pointcloud):]>comp_score[-len(pointcloud):],new_conf[-len(pointcloud):],score[-len(pointcloud):])
+                    #print("Accumulated PointCloud:", accumulated_pointcloud.shape)
+                    #print("Pointcloud: ", pointcloud.shape) # Actually incoming
+
+                    #accumulated_pointcloud[-len(pointcloud):,4] = np.where(new_conf[-len(pointcloud):]>comp_score[-len(pointcloud):],acc_label[-len(pointcloud):],pred[-len(pointcloud):])
+                    #accumulated_confidence[-len(pointcloud):] = np.where(new_conf[-len(pointcloud):]>comp_score[-len(pointcloud):],new_conf[-len(pointcloud):],score[-len(pointcloud):])
 
                     to_save = np.zeros((len(pointcloud),2),dtype=np.int32)
-                    to_save[:,0] = accumulated_pointcloud[-len(pointcloud):,4].astype(np.int32)
+                    #to_save[:,0] = accumulated_pointcloud[-len(pointcloud):,4].astype(np.int32)
+                    to_save[:,0] = pred.astype(np.int32)
                     to_save[:,-1] = label.astype(np.int32)
                     #np.save(osp.join(self.save, f'HD_{self.config.hd_block_stop}', seq, str(frame)+'.npy'), to_save)
                     hdf_file.create_dataset(f'{str(frame)}', data=to_save)
