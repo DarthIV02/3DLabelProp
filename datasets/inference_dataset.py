@@ -211,10 +211,8 @@ class InferenceDataset:
         print(osp.join(self.save, f'HD_{self.config.hd_block_stop}', seq, 'Pred.h5'))
         with h5py.File(osp.join(self.save, f'HD_{self.config.hd_block_stop}', seq, 'Pred.h5'), 'w') as hdf_file:
             for st in start:
-                #for frame in tqdm(range(st,len_seq,len(start)),leave=False,desc="Sequence: " + str(self.trg_datast.sequence[seq_number]) + ", subsample number " +str(st+1)+"/"+str(len(start))): # len_seq   
-                print("Start1")
-                for frame in range(st,len_seq,len(start)):            
-                    print("Start2")         
+                for frame in tqdm(range(st,len_seq,len(start)),leave=False,desc="Sequence: " + str(self.trg_datast.sequence[seq_number]) + ", subsample number " +str(st+1)+"/"+str(len(start))): # len_seq   
+                #for frame in range(st,len_seq,len(start)):                   
                     pointcloud, label = self.trg_datast.loader(seq,frame)
 
                     if st_real: # frame>st
@@ -282,7 +280,8 @@ class InferenceDataset:
                     #comp_score[comp_score>self.config.cluster.override] = 1 
 
                     #print("Accumulated PointCloud:", accumulated_pointcloud.shape)
-                    #print("Pointcloud: ", pointcloud.shape) # Actually incoming
+                    print("Pointcloud: ", pointcloud.shape) # Actually incoming
+                    print("Pred:", pred.shape)
 
                     #accumulated_pointcloud[-len(pointcloud):,4] = np.where(new_conf[-len(pointcloud):]>comp_score[-len(pointcloud):],acc_label[-len(pointcloud):],pred[-len(pointcloud):])
                     #accumulated_confidence[-len(pointcloud):] = np.where(new_conf[-len(pointcloud):]>comp_score[-len(pointcloud):],new_conf[-len(pointcloud):],score[-len(pointcloud):])
