@@ -281,9 +281,8 @@ class InferenceDataset:
                     comp_score = np.copy(score)
                     comp_score[comp_score>self.config.cluster.override] = 1 
 
-                    print(new_conf.shape)
-                    print(accumulated_pointcloud.shape)
-                    print("New Shape")
+                    print("Accumulated PointCloud:", accumulated_pointcloud.shape)
+                    print("Pointcloud: ", pointcloud.shape)
                     accumulated_pointcloud[-len(pointcloud):,4] = np.where(new_conf[-len(pointcloud):]>comp_score[-len(pointcloud):],acc_label[-len(pointcloud):],pred[-len(pointcloud):])
                     accumulated_confidence[-len(pointcloud):] = np.where(new_conf[-len(pointcloud):]>comp_score[-len(pointcloud):],new_conf[-len(pointcloud):],score[-len(pointcloud):])
 
