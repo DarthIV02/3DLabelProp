@@ -35,7 +35,7 @@ def per_class_iu(hist):
     with np.errstate(divide='ignore', invalid='ignore'):
         return np.diag(hist) / (hist.sum(1) + hist.sum(0) - np.diag(hist))
 
-def confmat_computations_parallel(frame_list,label_list=np.arange(-1,19),n_process=4,source_mapping=None,target_mapping=None):
+def confmat_computations_parallel(frame_list,label_list=np.arange(-1,19),n_process=16,source_mapping=None,target_mapping=None):
     # n_process was originally 20
     global compute_conf_mat
     def compute_conf_mat(frame):
@@ -364,7 +364,7 @@ class InferenceDataset:
 
                     # Predictions are made here :0
 
-                    self.infer_concat_train(self.model,[accumulated_pointcloud[c] for c in clusters],self.device,self.cfg_model, 4 , self.config, self.hd_model, label) # Change 1 to change the batch size
+                    self.infer_concat_train(self.model,[accumulated_pointcloud[c] for c in clusters],self.device,self.cfg_model, 16 , self.config, self.hd_model, label) # Change 1 to change the batch size
 
                     st_real = True
 
