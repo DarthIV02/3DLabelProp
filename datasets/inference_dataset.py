@@ -207,7 +207,7 @@ class InferenceDataset:
         
         #len_seq = 1000
         st_real = False # Cariable that makes the the whole loop run at least once
-
+        print(osp.join(self.save, f'HD_{self.config.hd_block_stop}', seq, 'Pred.h5'))
         with h5py.File(osp.join(self.save, f'HD_{self.config.hd_block_stop}', seq, 'Pred.h5'), 'w') as hdf_file:
             for st in start:
                 for frame in tqdm(range(st,len_seq,len(start)),leave=False,desc="Sequence: " + str(self.trg_datast.sequence[seq_number]) + ", subsample number " +str(st+1)+"/"+str(len(start))): # len_seq                
