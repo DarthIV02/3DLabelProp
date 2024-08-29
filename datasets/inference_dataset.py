@@ -206,7 +206,7 @@ class InferenceDataset:
         start = [i for i in range(self.config.subsample)]
         
         #len_seq = 1000
-        st_real = False # Cariable that makes the the whole loop run at least once
+        #st_real = False # Cariable that makes the the whole loop run at least once
 
         print(osp.join(self.save, f'HD_{self.config.hd_block_stop}', seq, 'Pred.h5'))
         with h5py.File(osp.join(self.save, f'HD_{self.config.hd_block_stop}', seq, 'Pred.h5'), 'w') as hdf_file:
@@ -283,8 +283,8 @@ class InferenceDataset:
                     #comp_score[comp_score>self.config.cluster.override] = 1 
 
                     #print("Accumulated PointCloud:", accumulated_pointcloud.shape)
-                    print("Pointcloud: ", pointcloud.shape) # Actually incoming
-                    print("Pred:", pred.shape)
+                    #print("Pointcloud: ", pointcloud.shape) # Actually incoming
+                    #print("Pred:", pred.shape)
 
                     #accumulated_pointcloud[-len(pointcloud):,4] = np.where(new_conf[-len(pointcloud):]>comp_score[-len(pointcloud):],acc_label[-len(pointcloud):],pred[-len(pointcloud):])
                     #accumulated_confidence[-len(pointcloud):] = np.where(new_conf[-len(pointcloud):]>comp_score[-len(pointcloud):],new_conf[-len(pointcloud):],score[-len(pointcloud):])
@@ -296,7 +296,7 @@ class InferenceDataset:
                     #np.save(osp.join(self.save, f'HD_{self.config.hd_block_stop}', seq, str(frame)+'.npy'), to_save)
                     hdf_file.create_dataset(f'{str(frame)}', data=to_save)
 
-                    st_real = True
+                    #st_real = True
                     
     def train_hd_sequence(self,seq_number):
 
