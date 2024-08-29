@@ -187,7 +187,7 @@ class InferenceDataset:
         #    print("Skip")
         #    print(osp.join(self.save,self.trg_datast.sequence[seq_number]))
         #    return True 
-        os.makedirs(osp.join(self.save,self.trg_datast.sequence[seq_number]),exist_ok=True)
+        os.makedirs(osp.join(self.save,f'HD_{self.config.hd_block_stop}',self.trg_datast.sequence[seq_number]),exist_ok=True)
 
         #init accumulated arrays
         accumulated_pointcloud = np.empty((0,6))
@@ -207,6 +207,7 @@ class InferenceDataset:
         
         #len_seq = 1000
         st_real = False # Cariable that makes the the whole loop run at least once
+
         print(osp.join(self.save, f'HD_{self.config.hd_block_stop}', seq, 'Pred.h5'))
         with h5py.File(osp.join(self.save, f'HD_{self.config.hd_block_stop}', seq, 'Pred.h5'), 'w') as hdf_file:
             for st in start:
