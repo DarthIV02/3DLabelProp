@@ -264,13 +264,16 @@ class InferenceDataset:
                     acc_label[dynamic_current] = -1
                     new_conf[dynamic_current] = 0
 
-                    clusters = cluster(accumulated_pointcloud, acc_label, len(pointcloud), self.config.cluster.voxel_size, self.config.cluster.n_centroids, 'Kmeans')
+                    #clusters = cluster(accumulated_pointcloud, acc_label, len(pointcloud), self.config.cluster.voxel_size, self.config.cluster.n_centroids, 'Kmeans')
+                    clusters = cluster(pointcloud, acc_label, len(pointcloud), self.config.cluster.voxel_size, self.config.cluster.n_centroids, 'Kmeans')
                     clusters = list(filter(lambda e: len(e)>1,clusters))
                     clusters = [np.array(c) for c in clusters]
 
                     # Predictions are made here :0
-                    total_pred = self.infer_concat(self.model,[accumulated_pointcloud[c] for c in clusters],self.device,self.cfg_model, 8, self.config, self.hd_model, label) # Change 1 to change the batch size
-                    predicted_cloudwise = np.zeros((len(accumulated_pointcloud),self.n_label+1))
+                    #total_pred = self.infer_concat(self.model,[accumulated_pointcloud[c] for c in clusters],self.device,self.cfg_model, 8, self.config, self.hd_model, label) # Change 1 to change the batch size
+                    total_pred = self.infer_concat(self.model,[pointcloud[c] for c in clusters],self.device,self.cfg_model, 8, self.config, self.hd_model, label)
+                    #predicted_cloudwise = np.zeros((len(accumulated_pointcloud),self.n_label+1))
+                    predicted_cloudwise = np.zeros((len(pointcloud),self.n_label+1))
                     for i in range(len(clusters)):
                         predicted_cloudwise[clusters[i],1:self.n_label+1] = np.maximum(total_pred[i],predicted_cloudwise[clusters[i],1:self.n_label+1])
 
@@ -288,7 +291,7 @@ class InferenceDataset:
 
                     to_save = np.zeros((len(pointcloud),2),dtype=np.int32)
                     #to_save[:,0] = accumulated_pointcloud[-len(pointcloud):,4].astype(np.int32)
-                    to_save[:,0] = pred[-len(pointcloud):].astype(np.int32)
+                    to_save[:,0] = pred[-len(pointcloud):,4].astype(np.int32)
                     to_save[:,-1] = label.astype(np.int32)
                     #np.save(osp.join(self.save, f'HD_{self.config.hd_block_stop}', seq, str(frame)+'.npy'), to_save)
                     hdf_file.create_dataset(f'{str(frame)}', data=to_save)
