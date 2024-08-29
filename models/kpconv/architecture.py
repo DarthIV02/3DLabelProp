@@ -392,6 +392,8 @@ class KPFCNN(nn.Module):
 
         hd_model.fit(x, batch.labels)
 
+        torch.cuda.empty_cache()
+
         return
 
 

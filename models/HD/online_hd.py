@@ -86,4 +86,9 @@ class OnlineHD(Classifier):
             self.model.add_online(encoded[enter], labels[enter], lr=self.lr)
             print("Finish fit")
 
+            del samples
+            del labels
+            del pad
+            del encoded
+
         return self
