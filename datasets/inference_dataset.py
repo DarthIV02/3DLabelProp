@@ -252,7 +252,7 @@ class InferenceDataset:
                     local_rot, local_trans = rot[frame], trans[frame]
 
                     #add channel for semantic and for timestamp
-                    pointcloud = np.hstack((pointcloud[:,:4],label.reshape(-1,1),np.zeros(len(pointcloud)).reshape(-1,1)+frame)) # np.zeros(len(pointcloud)).reshape(-1,1)-1
+                    pointcloud = np.hstack((pointcloud[:,:4],np.zeros(len(pointcloud)).reshape(-1,1)-1,np.zeros(len(pointcloud)).reshape(-1,1)+frame)) # np.zeros(len(pointcloud)).reshape(-1,1)-1
                     pointcloud = apply_transformation(pointcloud, (local_rot, local_trans))
 
                     #remove accumulated points too far from the center
@@ -332,6 +332,9 @@ class InferenceDataset:
             for frame in tqdm(range(st,len_seq,len(start)),leave=False,desc="Sequence: " + str(self.trg_datast.sequence[seq_number]) + ", subsample number " +str(st+1)+"/"+str(len(start))): # len_seq                
                 try:                    
                     pointcloud, label = self.trg_datast.loader(seq,frame)
+                    all_minus_one = np.all(label == -1)
+                    print("all_munus_one:", all_minus_one)
+                    print("max:", max(label))
                     
                     if st_real: # 
                         #raise Exception("Just one for now") # This needs to be removed

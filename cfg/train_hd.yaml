@@ -5,6 +5,6 @@ model_cfg: ./cfg/model_cfg/kp_sk_infer.yaml
 data_cfg_path: ./cfg/data_cfg
 subsample: 1
 save_pred_path: /root/main/3DLabelProp/results_3DLabelProp
-train_hd: True
+train_hd: False
 test_hd: True
 hd_param: './cfg/hd_param.yaml'

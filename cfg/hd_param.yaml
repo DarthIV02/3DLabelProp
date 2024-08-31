@@ -1,4 +1,4 @@
-hd_block_stop: 5
+hd_block_stop: 2
 hd_encoding: 'linear'
 n_features: 128
 n_dimensions: 2000

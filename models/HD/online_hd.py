@@ -58,37 +58,16 @@ class OnlineHD(Classifier):
         self.model = Centroid(n_dimensions, n_classes, device=device, dtype=dtype)
 
     def fit(self, samples, labels):
+                  
+        samples = samples.to(self.device)
+        labels = labels.to(self.device)
 
-        for _ in trange(self.epochs, desc="fit"):
-            
-            samples = samples.to(self.device)
-            labels = labels.to(self.device)
-            
-            print(samples.shape)
-            
-            ignores = labels == -1
-            enter = labels != -1
-            print("Ignores", torch.sum(ignores))
-            print(labels)
-            
-            print("device", self.device)
-            
-            pad = torch.zeros(torch.sum(ignores), self.n_dimensions, device=self.device)
-            print("pad", pad.shape)
-                
-            #samples = samples.to(self.device)
-            #labels = labels.to(self.device)
+        enter = labels != -1
+        encoded = self.encoder(samples[enter])
+        self.model.add_online(encoded, labels[enter], lr=self.lr)
 
-            encoded = self.encoder(samples)
-            encoded[ignores] = pad
-            print("Encoded ignored", torch.sum(encoded[ignores]))
-            print("Encoded", encoded.shape)
-            self.model.add_online(encoded[enter], labels[enter], lr=self.lr)
-            print("Finish fit")
-
-            del samples
-            del labels
-            del pad
-            del encoded
+        del samples
+        del labels
+        del encoded
 
         return self
