@@ -36,20 +36,21 @@ def per_class_iu(hist):
     with np.errstate(divide='ignore', invalid='ignore'):
         return np.diag(hist) / (hist.sum(1) + hist.sum(0) - np.diag(hist))
 
-def confmat_computations_parallel(frame_list,label_list=np.arange(-1,19),n_process=16,source_mapping=None,target_mapping=None):
+def confmat_computations_parallel(frame_full, frame_list, label_list=np.arange(-1,19),n_process=16,source_mapping=None,target_mapping=None):
     # n_process was originally 20
     global compute_conf_mat
     def compute_conf_mat(frame):
-        results = np.load(frame)
-        #print(np.bincount(results[:,-1].astype(np.int32)+1))
-        #print(np.bincount(results[:,0].astype(np.int32)+1))
-        #print(target_mapping)
-        #print(source_mapping)
-        gt = results[:,-1].astype(np.int32)+1 # target_mapping[
-        
-        pred = results[:,0].astype(np.int32)+1 # prev source_mapping target_mapping[
-        c_mat = confusion_matrix(gt,pred,labels=label_list)
-        return c_mat
+        with h5py.File(frame_full, 'r') as hdf_file:
+            results = hdf_file[frame][:]
+            #print(np.bincount(results[:,-1].astype(np.int32)+1))
+            #print(np.bincount(results[:,0].astype(np.int32)+1))
+            #print(target_mapping)
+            #print(source_mapping)
+            gt = results[:,-1].astype(np.int32)+1 # target_mapping[
+            
+            pred = results[:,0].astype(np.int32)+1 # prev source_mapping target_mapping[
+            c_mat = confusion_matrix(gt,pred,labels=label_list)
+            return c_mat
     
     print("The length of frame list is: ", len(frame_list)) # Check inference length
     with Pool(n_process) as p:
@@ -163,11 +164,13 @@ class InferenceDataset:
         for key in mapping['target_to_common']:
             target_mapping[key+1] = mapping['target_to_common'][key]
         conf_mat = np.zeros((n_labels,n_labels))
+        print(len(self.trg_datast.sequence))
         for i in range(len(self.trg_datast.sequence)):
             seq = self.trg_datast.sequence[i]
+            print(seq)
             seq_path = osp.join(self.save, seq)
-            file_list = [os.path.join(seq_path,f) for f in  os.listdir(seq_path)]
-            conf_mat += confmat_computations_parallel(file_list, np.arange(0,n_labels),20,source_mapping=source_mapping,target_mapping=target_mapping)
+            file_list = [f'{f}' for f in range(self.trg_datast.get_size_seq(seq))]
+            conf_mat += confmat_computations_parallel(os.path.join(self.save, f'HD_{self.config.hd_block_stop}', seq, 'Pred.h5'), file_list, np.arange(0,n_labels),20,source_mapping=source_mapping,target_mapping=target_mapping)
         ius = per_class_iu(conf_mat)
         miu = np.nanmean(ius)
         return ius, miu
@@ -191,10 +194,10 @@ class InferenceDataset:
 
 
     def compute_sequence(self,seq_number):
-        #if osp.exists(osp.join(self.save,self.trg_datast.sequence[seq_number])): # This was commented to reduce the amount of times that the data is calculated
-        #    print("Skip")
-        #    print(osp.join(self.save,self.trg_datast.sequence[seq_number]))
-        #    return True 
+        if osp.exists(osp.join(self.save,f'HD_{self.config.hd_block_stop}',self.trg_datast.sequence[seq_number])): # This was commented to reduce the amount of times that the data is calculated
+            print("Skip")
+            print(osp.join(self.save,self.trg_datast.sequence[seq_number]))
+            return True 
         os.makedirs(osp.join(self.save,f'HD_{self.config.hd_block_stop}',self.trg_datast.sequence[seq_number]),exist_ok=True)
 
         #init accumulated arrays
