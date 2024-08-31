@@ -101,8 +101,8 @@ if __name__ == "__main__":
     if cfg.test_hd:
 
         # Define file names for saving the tensors
-        weights_path = os.path.join(hd_folder, 'weights_10.pt')
-        encoding_path = os.path.join(hd_folder, 'encoding_10.pt')
+        weights_path = os.path.join(hd_folder, 'weights_9.pt')
+        encoding_path = os.path.join(hd_folder, 'encoding_9.pt')
         
         model_hd.model.weight = torch.load(weights_path)
         model_hd.encoder.weight = torch.load(encoding_path)
