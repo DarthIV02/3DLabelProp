@@ -145,7 +145,7 @@ class InferenceDataset:
             self.infer_concat = infer_concat_spv
         self.hd_model = hd_model
 
-    def compute_results(self):
+    def compute_results(self, name):
         if self.config.target == "semantickitti":
             from mapping.sk import map
         elif self.config.target == "nuscenes":
@@ -169,7 +169,7 @@ class InferenceDataset:
             #seq_path = osp.join(self.save, seq)
             #print(self.trg_datast.get_size_seq(int(0)))
             file_list = [f'{f}' for f in range(self.trg_datast.get_size_seq(0))]
-            conf_mat += confmat_computations_parallel(os.path.join(self.save, f'HD_{self.config.hd_block_stop}', seq, 'Pred.h5'), file_list, np.arange(0,n_labels),20,source_mapping=source_mapping,target_mapping=target_mapping)
+            conf_mat += confmat_computations_parallel(os.path.join(self.save, f'HD_{self.config.hd_block_stop}', seq, name), file_list, np.arange(0,n_labels),20,source_mapping=source_mapping,target_mapping=target_mapping)
         ius = per_class_iu(conf_mat)
         miu = np.nanmean(ius)
         return ius, miu
@@ -191,6 +191,45 @@ class InferenceDataset:
             torch.save(self.hd_model.model.weight, weights_path)
             torch.save(self.hd_model.encoder.weight, encoding_path)
 
+            self.compute_small_sequence(0,i)
+            ius, miu = self.compute_results(f'Pred_sm_{i}.h5') # The results are already there?
+            print(ius)
+            print(miu)
+
+    def compute_small_sequence(self,seq_number,training_seq):
+        os.makedirs(osp.join(self.save,f'HD_{self.config.hd_block_stop}',self.trg_datast.sequence[seq_number]),exist_ok=True)
+
+        #get slam poses
+        rot, trans = self.trg_datast.get_poses_seq(seq_number)
+
+        #get sequence information
+        len_seq = 20
+        seq = self.trg_datast.sequence[seq_number]
+        
+        start = [i for i in range(self.config.subsample)]
+
+        with h5py.File(osp.join(self.save, f'HD_{self.config.hd_block_stop}', seq, f'Pred_sm_{training_seq}.h5'), 'w') as hdf_file:
+            for st in start:
+                for frame in tqdm(range(st,len_seq,len(start)),leave=False,desc="Sequence: " + str(self.trg_datast.sequence[seq_number]) + ", subsample number " +str(st+1)+"/"+str(len(start))): # len_seq   
+                #for frame in range(st,len_seq,len(start)):                   
+                    pointcloud, label = self.trg_datast.loader(seq,frame)
+
+                    clusters = cluster(pointcloud, label, len(pointcloud), self.config.cluster.voxel_size, self.config.cluster.n_centroids, 'Kmeans')
+                    clusters = list(filter(lambda e: len(e)>1,clusters))
+                    clusters = [np.array(c) for c in clusters]
+
+                    # Predictions are made here :0
+                    total_pred = self.infer_concat(self.model,[pointcloud[c] for c in clusters],self.device,self.cfg_model, 8, self.config, self.hd_model, label)
+                    predicted_cloudwise = np.zeros((len(pointcloud),self.n_label+1))
+                    for i in range(len(clusters)):
+                        predicted_cloudwise[clusters[i],1:self.n_label+1] = np.maximum(total_pred[i],predicted_cloudwise[clusters[i],1:self.n_label+1])
+
+                    pred = np.argmax(predicted_cloudwise[:,:self.n_label+1], axis=1) -1
+
+                    to_save = np.zeros((len(pointcloud),2),dtype=np.int32)
+                    to_save[:,0] = pred.astype(np.int32)
+                    to_save[:,-1] = label.astype(np.int32)
+                    hdf_file.create_dataset(f'{str(frame)}', data=to_save)
 
     def compute_sequence(self,seq_number):
         if osp.exists(osp.join(self.save,f'HD_{self.config.hd_block_stop}',self.trg_datast.sequence[seq_number], 'Pred.h5')): # This was commented to reduce the amount of times that the data is calculated
