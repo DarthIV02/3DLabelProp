@@ -167,7 +167,7 @@ class InferenceDataset:
         for i in range(len(self.trg_datast.sequence)):
             seq = self.trg_datast.sequence[i]
             #seq_path = osp.join(self.save, seq)
-            print(self.trg_datast.get_size_seq(int(seq)))
+            print(self.trg_datast.get_size_seq(1))
             file_list = [f'{f}' for f in range(self.trg_datast.get_size_seq(seq))]
             conf_mat += confmat_computations_parallel(os.path.join(self.save, f'HD_{self.config.hd_block_stop}', seq, 'Pred.h5'), file_list, np.arange(0,n_labels),20,source_mapping=source_mapping,target_mapping=target_mapping)
         ius = per_class_iu(conf_mat)
