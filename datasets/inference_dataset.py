@@ -194,7 +194,7 @@ class InferenceDataset:
 
 
     def compute_sequence(self,seq_number):
-        if osp.exists(osp.join(self.save,f'HD_{self.config.hd_block_stop}',self.trg_datast.sequence[seq_number])): # This was commented to reduce the amount of times that the data is calculated
+        if osp.exists(osp.join(self.save,f'HD_{self.config.hd_block_stop}',self.trg_datast.sequence[seq_number], 'Pred.h5')): # This was commented to reduce the amount of times that the data is calculated
             print("Skip")
             print(osp.join(self.save,self.trg_datast.sequence[seq_number]))
             return True 
