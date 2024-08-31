@@ -164,11 +164,10 @@ class InferenceDataset:
         for key in mapping['target_to_common']:
             target_mapping[key+1] = mapping['target_to_common'][key]
         conf_mat = np.zeros((n_labels,n_labels))
-        print(len(self.trg_datast.sequence))
         for i in range(len(self.trg_datast.sequence)):
             seq = self.trg_datast.sequence[i]
-            print(seq)
-            seq_path = osp.join(self.save, seq)
+            #seq_path = osp.join(self.save, seq)
+            print(self.trg_datast.get_size_seq(seq))
             file_list = [f'{f}' for f in range(self.trg_datast.get_size_seq(seq))]
             conf_mat += confmat_computations_parallel(os.path.join(self.save, f'HD_{self.config.hd_block_stop}', seq, 'Pred.h5'), file_list, np.arange(0,n_labels),20,source_mapping=source_mapping,target_mapping=target_mapping)
         ius = per_class_iu(conf_mat)
