@@ -110,6 +110,6 @@ if __name__ == "__main__":
         output_dataset_2 = InferenceDataset(cfg, train_set, target_set, model, model_information, model_hd)
         
         output_dataset_2.compute_dataset()
-        ius, miu = output_dataset_2.compute_results() # The results are already there?
+        ius, miu = output_dataset_2.compute_results('Pred.h5') # The results are already there?
         print(ius)
         print(miu)
