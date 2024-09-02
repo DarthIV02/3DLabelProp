@@ -360,6 +360,8 @@ class KPFCNN(nn.Module):
             else:
                 continue
 
+        print('x final: ', x.shape)
+
         x = x.to(hd_model.device)
         encoded = hd_model.encoder(x)
         y = functional.cosine_similarity(encoded, hd_model.model.weight)
