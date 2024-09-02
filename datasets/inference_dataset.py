@@ -145,7 +145,7 @@ class InferenceDataset:
             self.infer_concat = infer_concat_spv
         self.hd_model = hd_model
 
-    def compute_results(self, name):
+    def compute_results(self, name, file_list=None):
         if self.config.target == "semantickitti":
             from mapping.sk import map
         elif self.config.target == "nuscenes":
@@ -168,7 +168,8 @@ class InferenceDataset:
             seq = self.trg_datast.sequence[i]
             #seq_path = osp.join(self.save, seq)
             #print(self.trg_datast.get_size_seq(int(0)))
-            file_list = [f'{f}' for f in range(self.trg_datast.get_size_seq(0))]
+            if not file_list:
+                file_list = [f'{f}' for f in range(self.trg_datast.get_size_seq(0))]
             conf_mat += confmat_computations_parallel(os.path.join(self.save, f'HD_{self.config.hd_block_stop}', seq, name), file_list, np.arange(0,n_labels),20,source_mapping=source_mapping,target_mapping=target_mapping)
         ius = per_class_iu(conf_mat)
         miu = np.nanmean(ius)
@@ -191,8 +192,8 @@ class InferenceDataset:
             #torch.save(self.hd_model.model.weight, weights_path)
             #torch.save(self.hd_model.encoder.weight, encoding_path)
 
-            self.compute_small_sequence(0,i)
-            ius, miu = self.compute_results(f'Pred_sm_{i}.h5') # The results are already there?
+            file_list = self.compute_small_sequence(0,i)
+            ius, miu = self.compute_results(f'Pred_sm_{i}.h5', file_list) # The results are already there?
             print(ius)
             print(miu)
 
@@ -207,6 +208,7 @@ class InferenceDataset:
         seq = self.trg_datast.sequence[seq_number]
         
         start = [i for i in range(self.config.subsample)]
+        file_list = []
 
         with h5py.File(osp.join(self.save, f'HD_{self.config.hd_block_stop}', seq, f'Pred_sm_{training_seq}.h5'), 'w') as hdf_file:
             for st in start:
@@ -237,9 +239,12 @@ class InferenceDataset:
                         to_save[:,0] = pred.astype(np.int32)
                         to_save[:,-1] = label.astype(np.int32)
                         hdf_file.create_dataset(f'{str(frame)}', data=to_save)
+                        file_list.append(f'{str(frame)}')
                     
                     except OSError as e: # Values are not found
                         continue
+        
+        return file_list
 
     def compute_sequence(self,seq_number):
         if osp.exists(osp.join(self.save,f'HD_{self.config.hd_block_stop}',self.trg_datast.sequence[seq_number], 'Pred.h5')): # This was commented to reduce the amount of times that the data is calculated

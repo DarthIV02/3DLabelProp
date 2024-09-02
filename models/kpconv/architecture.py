@@ -340,7 +340,6 @@ class KPFCNN(nn.Module):
 
         # Get input features
         x = batch.features.clone().detach()
-        print(x.shape)
 
         # Loop over consecutive blocks
         skip_x = []
@@ -351,21 +350,15 @@ class KPFCNN(nn.Module):
                 skip_x.append(x)
             x = block_op(x, batch)
             
-        print(x.shape)
         continue_dec = (((-2)*(config_data.hd_block_stop - 2))/3) + 8
-        print(continue_dec)
 
         for block_i, block_op in enumerate(self.decoder_blocks):
             if block_i >= continue_dec and block_i % 2 == 0:
-                print(block_i)
                 #if block_i in self.decoder_concats:
                 #    x = torch.cat([x, skip_x.pop()], dim=1)
                 x = block_op(x, batch)
-                print(x.shape)
             else:
                 continue
-
-        print('x final: ', x.shape)
 
         x = x.to(hd_model.device)
         encoded = hd_model.encoder(x)
