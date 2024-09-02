@@ -240,7 +240,7 @@ class InferenceDataset:
                         #for i in range(len(clusters)):
                         #    predicted_cloudwise[clusters[i],1:self.n_label+1] = np.maximum(total_pred[i],predicted_cloudwise[clusters[i],1:self.n_label+1])
 
-                        pred = np.argmax(total_pred[:,:self.n_label+1], axis=1) -1
+                        pred = np.argmax(total_pred[0][:,:self.n_label+1], axis=1) -1
 
                         to_save = np.zeros((len(pointcloud),2),dtype=np.int32)
                         to_save[:,0] = pred.astype(np.int32)
@@ -348,7 +348,7 @@ class InferenceDataset:
                     #for i in range(len(clusters)):
                     #    predicted_cloudwise[clusters[i],1:self.n_label+1] = np.maximum(total_pred[i],predicted_cloudwise[clusters[i],1:self.n_label+1])
 
-                    pred = np.argmax(total_pred[:,:self.n_label+1], axis=1)-1
+                    pred = np.argmax(total_pred[0][:,:self.n_label+1], axis=1)-1
                     #score = np.max(predicted_cloudwise[:,1:self.n_label+1],axis=1)
                     #comp_score = np.copy(score)
                     #comp_score[comp_score>self.config.cluster.override] = 1 
