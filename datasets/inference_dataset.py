@@ -221,35 +221,35 @@ class InferenceDataset:
             for st in start:
                 for frame in tqdm(range(st,len_seq,len(start)),leave=False,desc="Sequence: " + str(self.trg_datast.sequence[seq_number]) + ", subsample number " +str(st+1)+"/"+str(len(start))): # len_seq   
                 #for frame in range(st,len_seq,len(start)):    
-                    try:               
-                        pointcloud, label = self.trg_datast.loader(seq,frame)
+                                   
+                    pointcloud, label = self.trg_datast.loader(seq,frame)
 
-                        local_rot, local_trans = rot[frame], trans[frame]
+                    local_rot, local_trans = rot[frame], trans[frame]
 
-                        #add channel for semantic and for timestamp
-                        pointcloud = np.hstack((pointcloud[:,:4],np.zeros(len(pointcloud)).reshape(-1,1)-1,np.zeros(len(pointcloud)).reshape(-1,1)+frame)) # np.zeros(len(pointcloud)).reshape(-1,1)-1
-                        pointcloud = apply_transformation(pointcloud, (local_rot, local_trans))
+                    #add channel for semantic and for timestamp
+                    pointcloud = np.hstack((pointcloud[:,:4],np.zeros(len(pointcloud)).reshape(-1,1)-1,np.zeros(len(pointcloud)).reshape(-1,1)+frame)) # np.zeros(len(pointcloud)).reshape(-1,1)-1
+                    pointcloud = apply_transformation(pointcloud, (local_rot, local_trans))
 
-                        #clusters = cluster(pointcloud, label, len(pointcloud), self.config.cluster.voxel_size, self.config.cluster.n_centroids, 'Kmeans')
-                        #clusters = list(filter(lambda e: len(e)>1,clusters))
-                        #clusters = [np.array(c) for c in clusters]
+                    #clusters = cluster(pointcloud, label, len(pointcloud), self.config.cluster.voxel_size, self.config.cluster.n_centroids, 'Kmeans')
+                    #clusters = list(filter(lambda e: len(e)>1,clusters))
+                    #clusters = [np.array(c) for c in clusters]
 
-                        # Predictions are made here :0
-                        total_pred = self.infer_concat(self.model,[pointcloud],self.device,self.cfg_model, 8, self.config, self.hd_model, label)
-                        #predicted_cloudwise = np.zeros((len(pointcloud),self.n_label+1))
-                        #for i in range(len(clusters)):
-                        #    predicted_cloudwise[clusters[i],1:self.n_label+1] = np.maximum(total_pred[i],predicted_cloudwise[clusters[i],1:self.n_label+1])
+                    # Predictions are made here :0
+                    total_pred = self.infer_concat(self.model,[pointcloud],self.device,self.cfg_model, 8, self.config, self.hd_model, label)
+                    #predicted_cloudwise = np.zeros((len(pointcloud),self.n_label+1))
+                    #for i in range(len(clusters)):
+                    #    predicted_cloudwise[clusters[i],1:self.n_label+1] = np.maximum(total_pred[i],predicted_cloudwise[clusters[i],1:self.n_label+1])
 
-                        pred = np.argmax(total_pred[0][:,:self.n_label+1], axis=1) -1
+                    pred = np.argmax(total_pred[0][:,:self.n_label+1], axis=1) -1
 
-                        to_save = np.zeros((len(pointcloud),2),dtype=np.int32)
-                        to_save[:,0] = pred.astype(np.int32)
-                        to_save[:,-1] = label.astype(np.int32)
-                        hdf_file.create_dataset(f'{str(frame)}', data=to_save)
-                        file_list.append(f'{str(frame)}')
-                    
-                    except OSError as e: # Values are not found
-                        continue
+                    to_save = np.zeros((len(pointcloud),2),dtype=np.int32)
+                    to_save[:,0] = pred.astype(np.int32)
+                    to_save[:,-1] = label.astype(np.int32)
+                    hdf_file.create_dataset(f'{str(frame)}', data=to_save)
+                    file_list.append(f'{str(frame)}')
+                
+                    #except OSError as e: # Values are not found
+                    #    continue
         
         return file_list
 
