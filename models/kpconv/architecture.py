@@ -353,9 +353,9 @@ class KPFCNN(nn.Module):
         continue_dec = (((-2)*(config_data.hd_block_stop - 2))/3) + 8
 
         for block_i, block_op in enumerate(self.decoder_blocks):
-            if block_i >= continue_dec:
-                if block_i in self.decoder_concats:
-                    x = torch.cat([x, skip_x.pop()], dim=1)
+            if block_i >= continue_dec and block_i % 2 == 0:
+                #if block_i in self.decoder_concats:
+                #    x = torch.cat([x, skip_x.pop()], dim=1)
                 x = block_op(x, batch)
             else:
                 continue
