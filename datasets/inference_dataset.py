@@ -211,7 +211,7 @@ class InferenceDataset:
         rot, trans = self.val_set.get_poses_seq(seq_number)
 
         #get sequence information
-        len_seq = 100
+        len_seq = 10
         seq = self.val_set.sequence[seq_number]
         
         start = [i for i in range(self.config.subsample)]
