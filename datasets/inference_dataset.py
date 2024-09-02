@@ -170,6 +170,7 @@ class InferenceDataset:
             #print(self.trg_datast.get_size_seq(int(0)))
             if not file_list:
                 file_list = [f'{f}' for f in range(self.trg_datast.get_size_seq(0))]
+            print(os.path.join(self.save, f'HD_{self.config.hd_block_stop}', seq, name))
             conf_mat += confmat_computations_parallel(os.path.join(self.save, f'HD_{self.config.hd_block_stop}', seq, name), file_list, np.arange(0,n_labels),20,source_mapping=source_mapping,target_mapping=target_mapping)
         ius = per_class_iu(conf_mat)
         miu = np.nanmean(ius)
@@ -209,6 +210,8 @@ class InferenceDataset:
         
         start = [i for i in range(self.config.subsample)]
         file_list = []
+
+        print(osp.join(self.save, f'HD_{self.config.hd_block_stop}', seq, f'Pred_sm_{training_seq}.h5'))
 
         with h5py.File(osp.join(self.save, f'HD_{self.config.hd_block_stop}', seq, f'Pred_sm_{training_seq}.h5'), 'w') as hdf_file:
             for st in start:
