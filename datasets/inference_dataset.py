@@ -119,7 +119,7 @@ def infer_concat_spv(model,clusters,device,config_model,batch_size):
 
 class InferenceDataset:
 
-    def __init__(self, config, ref_dataset, trg_datast, model, config_model, hd_model=None):
+    def __init__(self, config, ref_dataset, trg_datast, model, config_model, hd_model=None, val_set=None):
         self.config = config 
         self.ref_dataset = ref_dataset 
         self.trg_datast = trg_datast 
@@ -144,6 +144,8 @@ class InferenceDataset:
         elif self.config.architecture.model == "KPCONV":
             self.infer_concat = infer_concat_spv
         self.hd_model = hd_model
+        if val_set:
+            self.val_set = val_set
 
     def compute_results(self, name, file_list=None, seq=None):
         if self.config.target == "semantickitti":
@@ -197,20 +199,20 @@ class InferenceDataset:
             torch.save(self.hd_model.model.weight, weights_path)
             torch.save(self.hd_model.encoder.weight, encoding_path)
 
-            file_list = self.compute_small_sequence(0,i)
-            ius, miu = self.compute_results(f'Pred_sm_{i}.h5', file_list, 0) # The results are already there?
+            file_list = self.compute_small_sequence('08',i)
+            ius, miu = self.compute_results(f'Pred_sm_{i}.h5', file_list, '08') # The results are already there?
             print(ius)
             print(miu)
 
     def compute_small_sequence(self,seq_number,training_seq):
-        os.makedirs(osp.join(self.save,f'HD_{self.config.hd_block_stop}',self.trg_datast.sequence[seq_number]),exist_ok=True)
+        os.makedirs(osp.join(self.save,f'HD_{self.config.hd_block_stop}', self.val_set.sequence[seq_number]),exist_ok=True)
 
         #get slam poses
-        rot, trans = self.trg_datast.get_poses_seq(seq_number)
+        rot, trans = self.val_set.get_poses_seq(seq_number)
 
         #get sequence information
-        len_seq = 50
-        seq = self.trg_datast.sequence[seq_number]
+        len_seq = 100
+        seq = self.val_set.sequence[seq_number]
         
         start = [i for i in range(self.config.subsample)]
         file_list = []
@@ -228,17 +230,17 @@ class InferenceDataset:
                         pointcloud = np.hstack((pointcloud[:,:4],np.zeros(len(pointcloud)).reshape(-1,1)-1,np.zeros(len(pointcloud)).reshape(-1,1)+frame)) # np.zeros(len(pointcloud)).reshape(-1,1)-1
                         pointcloud = apply_transformation(pointcloud, (local_rot, local_trans))
 
-                        clusters = cluster(pointcloud, label, len(pointcloud), self.config.cluster.voxel_size, self.config.cluster.n_centroids, 'Kmeans')
-                        clusters = list(filter(lambda e: len(e)>1,clusters))
-                        clusters = [np.array(c) for c in clusters]
+                        #clusters = cluster(pointcloud, label, len(pointcloud), self.config.cluster.voxel_size, self.config.cluster.n_centroids, 'Kmeans')
+                        #clusters = list(filter(lambda e: len(e)>1,clusters))
+                        #clusters = [np.array(c) for c in clusters]
 
                         # Predictions are made here :0
-                        total_pred = self.infer_concat(self.model,[pointcloud[c] for c in clusters],self.device,self.cfg_model, 8, self.config, self.hd_model, label)
-                        predicted_cloudwise = np.zeros((len(pointcloud),self.n_label+1))
-                        for i in range(len(clusters)):
-                            predicted_cloudwise[clusters[i],1:self.n_label+1] = np.maximum(total_pred[i],predicted_cloudwise[clusters[i],1:self.n_label+1])
+                        total_pred = self.infer_concat(self.model,[pointcloud],self.device,self.cfg_model, 8, self.config, self.hd_model, label)
+                        #predicted_cloudwise = np.zeros((len(pointcloud),self.n_label+1))
+                        #for i in range(len(clusters)):
+                        #    predicted_cloudwise[clusters[i],1:self.n_label+1] = np.maximum(total_pred[i],predicted_cloudwise[clusters[i],1:self.n_label+1])
 
-                        pred = np.argmax(predicted_cloudwise[:,:self.n_label+1], axis=1) -1
+                        pred = np.argmax(total_pred[:,:self.n_label+1], axis=1) -1
 
                         to_save = np.zeros((len(pointcloud),2),dtype=np.int32)
                         to_save[:,0] = pred.astype(np.int32)
@@ -334,19 +336,19 @@ class InferenceDataset:
                     #new_conf[dynamic_current] = 0
 
                     #clusters = cluster(accumulated_pointcloud, acc_label, len(pointcloud), self.config.cluster.voxel_size, self.config.cluster.n_centroids, 'Kmeans')
-                    clusters = cluster(pointcloud, label, len(pointcloud), self.config.cluster.voxel_size, self.config.cluster.n_centroids, 'Kmeans')
-                    clusters = list(filter(lambda e: len(e)>1,clusters))
-                    clusters = [np.array(c) for c in clusters]
+                    #clusters = cluster(pointcloud, label, len(pointcloud), self.config.cluster.voxel_size, self.config.cluster.n_centroids, 'Kmeans')
+                    #clusters = list(filter(lambda e: len(e)>1,clusters))
+                    #clusters = [np.array(c) for c in clusters]
 
                     # Predictions are made here :0
                     #total_pred = self.infer_concat(self.model,[accumulated_pointcloud[c] for c in clusters],self.device,self.cfg_model, 8, self.config, self.hd_model, label) # Change 1 to change the batch size
-                    total_pred = self.infer_concat(self.model,[pointcloud[c] for c in clusters],self.device,self.cfg_model, 8, self.config, self.hd_model, label)
+                    total_pred = self.infer_concat(self.model,[pointcloud],self.device,self.cfg_model, 8, self.config, self.hd_model, label)
                     #predicted_cloudwise = np.zeros((len(accumulated_pointcloud),self.n_label+1))
-                    predicted_cloudwise = np.zeros((len(pointcloud),self.n_label+1))
-                    for i in range(len(clusters)):
-                        predicted_cloudwise[clusters[i],1:self.n_label+1] = np.maximum(total_pred[i],predicted_cloudwise[clusters[i],1:self.n_label+1])
+                    #predicted_cloudwise = np.zeros((len(pointcloud),self.n_label+1))
+                    #for i in range(len(clusters)):
+                    #    predicted_cloudwise[clusters[i],1:self.n_label+1] = np.maximum(total_pred[i],predicted_cloudwise[clusters[i],1:self.n_label+1])
 
-                    pred = np.argmax(predicted_cloudwise[:,:self.n_label+1], axis=1) -1
+                    pred = np.argmax(total_pred[:,:self.n_label+1], axis=1)-1
                     #score = np.max(predicted_cloudwise[:,1:self.n_label+1],axis=1)
                     #comp_score = np.copy(score)
                     #comp_score[comp_score>self.config.cluster.override] = 1 

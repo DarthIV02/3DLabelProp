@@ -94,7 +94,7 @@ if __name__ == "__main__":
 
     if cfg.train_hd:
         
-        output_dataset = InferenceDataset(cfg,train_set,train_set_2, model, model_information, model_hd)
+        output_dataset = InferenceDataset(cfg,train_set,train_set_2, model, model_information, model_hd, target_set)
         
         output_dataset.compute_hd_dataset(hd_folder)
     
