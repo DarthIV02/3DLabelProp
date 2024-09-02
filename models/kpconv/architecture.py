@@ -357,6 +357,7 @@ class KPFCNN(nn.Module):
                 #if block_i in self.decoder_concats:
                 #    x = torch.cat([x, skip_x.pop()], dim=1)
                 x = block_op(x, batch)
+                print(x.shape)
             else:
                 continue
 
