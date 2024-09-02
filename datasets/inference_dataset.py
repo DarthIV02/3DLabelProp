@@ -199,8 +199,8 @@ class InferenceDataset:
             torch.save(self.hd_model.model.weight, weights_path)
             torch.save(self.hd_model.encoder.weight, encoding_path)
 
-            file_list = self.compute_small_sequence('08',i)
-            ius, miu = self.compute_results(f'Pred_sm_{i}.h5', file_list, '08') # The results are already there?
+            file_list = self.compute_small_sequence(0,i)
+            ius, miu = self.compute_results(f'Pred_sm_{i}.h5', file_list, 0) # The results are already there?
             print(ius)
             print(miu)
 
