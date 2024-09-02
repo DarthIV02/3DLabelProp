@@ -191,13 +191,13 @@ class InferenceDataset:
         print("Current Sequence: ", self.trg_datast.sequence)
         print(range(len(self.trg_datast.sequence)))
         for i in tqdm(range(len(self.trg_datast.sequence)),desc="Processing dataset "+str(self.config.target)):
-            #self.train_hd_sequence(i)
+            self.train_hd_sequence(i)
             # Save the tensors\
             # Define file names for saving the tensors
-            #weights_path = os.path.join(hd_folder, f'weights_{i}.pt')
-            #encoding_path = os.path.join(hd_folder, f'encoding_{i}.pt')
-            #torch.save(self.hd_model.model.weight, weights_path)
-            #torch.save(self.hd_model.encoder.weight, encoding_path)
+            weights_path = os.path.join(hd_folder, f'weights_{i}.pt')
+            encoding_path = os.path.join(hd_folder, f'encoding_{i}.pt')
+            torch.save(self.hd_model.model.weight, weights_path)
+            torch.save(self.hd_model.encoder.weight, encoding_path)
 
             file_list = self.compute_small_sequence(0,i)
             ius, miu = self.compute_results(f'Pred_sm_{i}.h5', file_list, 0) # The results are already there?
