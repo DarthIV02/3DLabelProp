@@ -145,7 +145,7 @@ class InferenceDataset:
             self.infer_concat = infer_concat_spv
         self.hd_model = hd_model
 
-    def compute_results(self, name, file_list=None):
+    def compute_results(self, name, file_list=None, seq=None):
         if self.config.target == "semantickitti":
             from mapping.sk import map
         elif self.config.target == "nuscenes":
@@ -164,14 +164,19 @@ class InferenceDataset:
         for key in mapping['target_to_common']:
             target_mapping[key+1] = mapping['target_to_common'][key]
         conf_mat = np.zeros((n_labels,n_labels))
-        for i in range(len(self.trg_datast.sequence)):
-            seq = self.trg_datast.sequence[i]
+        if file_list:
+            seq = self.trg_datast.sequence[seq]
             #seq_path = osp.join(self.save, seq)
             #print(self.trg_datast.get_size_seq(int(0)))
-            if not file_list:
-                file_list = [f'{f}' for f in range(self.trg_datast.get_size_seq(0))]
             print(os.path.join(self.save, f'HD_{self.config.hd_block_stop}', seq, name))
             conf_mat += confmat_computations_parallel(os.path.join(self.save, f'HD_{self.config.hd_block_stop}', seq, name), file_list, np.arange(0,n_labels),20,source_mapping=source_mapping,target_mapping=target_mapping)
+        else:
+            for i in range(len(self.trg_datast.sequence)):
+                seq = self.trg_datast.sequence[i]
+                #seq_path = osp.join(self.save, seq)
+                #print(self.trg_datast.get_size_seq(int(0)))
+                file_list = [f'{f}' for f in range(self.trg_datast.get_size_seq(0))]
+                conf_mat += confmat_computations_parallel(os.path.join(self.save, f'HD_{self.config.hd_block_stop}', seq, name), file_list, np.arange(0,n_labels),20,source_mapping=source_mapping,target_mapping=target_mapping)
         ius = per_class_iu(conf_mat)
         miu = np.nanmean(ius)
         return ius, miu
@@ -194,7 +199,7 @@ class InferenceDataset:
             #torch.save(self.hd_model.encoder.weight, encoding_path)
 
             file_list = self.compute_small_sequence(0,i)
-            ius, miu = self.compute_results(f'Pred_sm_{i}.h5', file_list) # The results are already there?
+            ius, miu = self.compute_results(f'Pred_sm_{i}.h5', file_list, 0) # The results are already there?
             print(ius)
             print(miu)
 
