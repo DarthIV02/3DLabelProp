@@ -345,7 +345,7 @@ class KPFCNN(nn.Module):
         # Loop over consecutive blocks
         skip_x = []
         for block_i, block_op in enumerate(self.encoder_blocks):
-            if block_i == config_data.hd_block_stop and config_data.test_hd:
+            if block_i == config_data.hd_block_stop and (config_data.test_hd or config_data.train_hd):
                 break
             if block_i in self.encoder_skips:
                 skip_x.append(x)
