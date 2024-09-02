@@ -167,7 +167,7 @@ class InferenceDataset:
             target_mapping[key+1] = mapping['target_to_common'][key]
         conf_mat = np.zeros((n_labels,n_labels))
         if file_list:
-            seq = self.trg_datast.sequence[seq]
+            seq = self.val_set.sequence[seq]
             #seq_path = osp.join(self.save, seq)
             #print(self.trg_datast.get_size_seq(int(0)))
             conf_mat += confmat_computations_parallel(os.path.join(self.save, f'HD_{self.config.hd_block_stop}', seq, name), file_list, np.arange(0,n_labels),20,source_mapping=source_mapping,target_mapping=target_mapping)
