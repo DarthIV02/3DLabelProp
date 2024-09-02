@@ -168,7 +168,6 @@ class InferenceDataset:
             seq = self.trg_datast.sequence[seq]
             #seq_path = osp.join(self.save, seq)
             #print(self.trg_datast.get_size_seq(int(0)))
-            print(os.path.join(self.save, f'HD_{self.config.hd_block_stop}', seq, name))
             conf_mat += confmat_computations_parallel(os.path.join(self.save, f'HD_{self.config.hd_block_stop}', seq, name), file_list, np.arange(0,n_labels),20,source_mapping=source_mapping,target_mapping=target_mapping)
         else:
             for i in range(len(self.trg_datast.sequence)):
@@ -190,13 +189,13 @@ class InferenceDataset:
         print("Current Sequence: ", self.trg_datast.sequence)
         print(range(len(self.trg_datast.sequence)))
         for i in tqdm(range(len(self.trg_datast.sequence)),desc="Processing dataset "+str(self.config.target)):
-            #self.train_hd_sequence(i)
+            self.train_hd_sequence(i)
             # Save the tensors\
             # Define file names for saving the tensors
-            #weights_path = os.path.join(hd_folder, f'weights_{i}.pt')
-            #encoding_path = os.path.join(hd_folder, f'encoding_{i}.pt')
-            #torch.save(self.hd_model.model.weight, weights_path)
-            #torch.save(self.hd_model.encoder.weight, encoding_path)
+            weights_path = os.path.join(hd_folder, f'weights_{i}.pt')
+            encoding_path = os.path.join(hd_folder, f'encoding_{i}.pt')
+            torch.save(self.hd_model.model.weight, weights_path)
+            torch.save(self.hd_model.encoder.weight, encoding_path)
 
             file_list = self.compute_small_sequence(0,i)
             ius, miu = self.compute_results(f'Pred_sm_{i}.h5', file_list, 0) # The results are already there?
@@ -215,8 +214,6 @@ class InferenceDataset:
         
         start = [i for i in range(self.config.subsample)]
         file_list = []
-
-        print(osp.join(self.save, f'HD_{self.config.hd_block_stop}', seq, f'Pred_sm_{training_seq}.h5'))
 
         with h5py.File(osp.join(self.save, f'HD_{self.config.hd_block_stop}', seq, f'Pred_sm_{training_seq}.h5'), 'w') as hdf_file:
             for st in start:
