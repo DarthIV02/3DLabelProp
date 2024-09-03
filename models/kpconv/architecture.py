@@ -379,6 +379,7 @@ class KPFCNN(nn.Module):
         print(x.shape)
         print(batch.points.shape)
         print(batch.labels.shape, batch.labels)
+        z = input("Enter")
 
         # Loop over consecutive blocks
         skip_x = []
