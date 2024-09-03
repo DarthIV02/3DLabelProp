@@ -365,6 +365,10 @@ class KPFCNN(nn.Module):
         encoded = hd_model.encoder(x)
         y = functional.cosine_similarity(encoded, hd_model.model.weight)
 
+        del x
+        del encoded
+        torch.cuda.empty_cache()
+
         return y
     
     def train_hd(self, batch, config, config_data, hd_model=None, labels=None):
@@ -392,8 +396,11 @@ class KPFCNN(nn.Module):
             else:
                 continue
                 
+        
+        hd_model.fit(x, batch.labels) # X.shape and batch.labels have different shapes...
 
-        hd_model.fit(x, batch.labels)
+        del x
+        del batch
 
         torch.cuda.empty_cache()
 
