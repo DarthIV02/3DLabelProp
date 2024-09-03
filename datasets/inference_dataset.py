@@ -94,6 +94,7 @@ def train_hd_concat_kp(model,clusters,device,config_model,batch_size,config_data
         model.model.train_hd(r_clouds, config_model, config_data, hd_model, labels) # This are the individual predictions
         labels_here = []
         lengths = r_clouds.lengths[0].cpu().numpy()
+        print(r_clouds.labels.shape)
         for i in range(len(sub_clusters)):
             L = lengths[i]
             local_cloud = r_clouds.labels[l:l+L]
