@@ -375,11 +375,6 @@ class KPFCNN(nn.Module):
 
         # Get input features
         x = batch.features.clone().detach()
-        print("Info")
-        print(x.shape)
-        print(batch.points[0].shape)
-        print(batch.labels.shape, batch.labels)
-        z = input("Enter")
 
         # Loop over consecutive blocks
         skip_x = []

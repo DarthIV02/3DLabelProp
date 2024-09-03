@@ -68,7 +68,6 @@ def infer_concat_kp(model,clusters,device,config_model,batch_size,config_data, h
         if 'cuda' in device.type:
             r_clouds.to(device)
         outputs = smax(model.model(r_clouds, config_model, config_data, hd_model, labels)) # This are the individual predictions
-        print("outputs: ", outputs.shape)
         pred = outputs.detach().cpu().numpy()
         del outputs
         preds = []
@@ -85,6 +84,7 @@ def infer_concat_kp(model,clusters,device,config_model,batch_size,config_data, h
     return cluster_outputs_proba
 
 def train_hd_concat_kp(model,clusters,device,config_model,batch_size,config_data, hd_model=None, labels=None): # This is the model that runs the inference
+    label_whole = []
     for k in range(len(clusters)//batch_size+(len(clusters)%batch_size!=0)):
         l=0
         sub_clusters = clusters[k*batch_size:min((k+1)*batch_size,len(clusters))]
@@ -92,6 +92,22 @@ def train_hd_concat_kp(model,clusters,device,config_model,batch_size,config_data
         if 'cuda' in device.type:
             r_clouds.to(device)
         model.model.train_hd(r_clouds, config_model, config_data, hd_model, labels) # This are the individual predictions
+        labels_here = []
+        lengths = r_clouds.lengths[0].cpu().numpy()
+        for i in range(len(sub_clusters)):
+            L = lengths[i]
+            local_cloud = r_clouds.labels[l:l+L]
+            labels_here.append(local_cloud[r_inds_list[i]])
+            l += L
+        label_whole += labels_here
+        del r_clouds
+        torch.cuda.empty_cache()
+    if label_whole.shape != labels.shape:
+        print("False")
+    
+    # Check if all elements are equal
+    print(torch.equal(label_whole, labels))
+    z = input("Enter")
     return
 
 def infer_concat_spv(model,clusters,device,config_model,batch_size):
@@ -205,7 +221,6 @@ class InferenceDataset:
             print(miu)
 
     def compute_small_sequence(self,seq_number,training_seq):
-        print("Hi :)")
         os.makedirs(osp.join(self.save,f'HD_{self.config.hd_block_stop}', self.val_set.sequence[seq_number]),exist_ok=True)
 
         #get slam poses
@@ -230,7 +245,6 @@ class InferenceDataset:
                     #add channel for semantic and for timestamp
                     pointcloud = np.hstack((pointcloud[:,:4],np.zeros(len(pointcloud)).reshape(-1,1)-1,np.zeros(len(pointcloud)).reshape(-1,1)+frame)) # np.zeros(len(pointcloud)).reshape(-1,1)-1
                     pointcloud = apply_transformation(pointcloud, (local_rot, local_trans))
-                    print("pointcloud: ", pointcloud.shape)
 
                     #clusters = cluster(pointcloud, label, len(pointcloud), self.config.cluster.voxel_size, self.config.cluster.n_centroids, 'Kmeans')
                     #clusters = list(filter(lambda e: len(e)>1,clusters))
@@ -238,7 +252,6 @@ class InferenceDataset:
 
                     # Predictions are made here :0
                     total_pred = self.infer_concat(self.model,[pointcloud],self.device,self.cfg_model, 8, self.config, self.hd_model, label)
-                    print("total pred: ", total_pred[0].shape)
                     #predicted_cloudwise = np.zeros((len(pointcloud),self.n_label+1))
                     #for i in range(len(clusters)):
                     #    predicted_cloudwise[clusters[i],1:self.n_label+1] = np.maximum(total_pred[i],predicted_cloudwise[clusters[i],1:self.n_label+1])
