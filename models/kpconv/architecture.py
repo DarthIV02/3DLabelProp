@@ -359,7 +359,8 @@ class KPFCNN(nn.Module):
                 x = block_op(x, batch)
             else:
                 continue
-
+        
+        print("Output features: ", x.shape)
         x = x.to(hd_model.device)
         encoded = hd_model.encoder(x)
         y = functional.cosine_similarity(encoded, hd_model.model.weight)
