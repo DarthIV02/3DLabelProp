@@ -102,7 +102,7 @@ def train_hd_concat_kp(model,clusters,device,config_model,batch_size,config_data
         label_whole += labels_here
         del r_clouds
         torch.cuda.empty_cache()
-    if label_whole.shape != labels.shape:
+    if label_whole[0].shape != labels.shape:
         print("False")
     
     # Check if all elements are equal
