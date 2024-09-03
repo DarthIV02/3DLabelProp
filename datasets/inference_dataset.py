@@ -229,6 +229,7 @@ class InferenceDataset:
                     #add channel for semantic and for timestamp
                     pointcloud = np.hstack((pointcloud[:,:4],np.zeros(len(pointcloud)).reshape(-1,1)-1,np.zeros(len(pointcloud)).reshape(-1,1)+frame)) # np.zeros(len(pointcloud)).reshape(-1,1)-1
                     pointcloud = apply_transformation(pointcloud, (local_rot, local_trans))
+                    print("pointcloud: ", pointcloud.shape)
 
                     #clusters = cluster(pointcloud, label, len(pointcloud), self.config.cluster.voxel_size, self.config.cluster.n_centroids, 'Kmeans')
                     #clusters = list(filter(lambda e: len(e)>1,clusters))
