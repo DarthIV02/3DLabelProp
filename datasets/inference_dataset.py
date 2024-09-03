@@ -81,7 +81,7 @@ def infer_concat_kp(model,clusters,device,config_model,batch_size,config_data, h
         cluster_outputs_proba += preds
         del r_clouds
         torch.cuda.empty_cache()
-    print("cluster_proba", len(cluster_outputs_proba))
+    print("cluster_proba", cluster_outputs_proba[0].shape)
     return cluster_outputs_proba
 
 def train_hd_concat_kp(model,clusters,device,config_model,batch_size,config_data, hd_model=None, labels=None): # This is the model that runs the inference
