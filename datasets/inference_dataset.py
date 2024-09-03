@@ -106,6 +106,8 @@ def train_hd_concat_kp(model,clusters,device,config_model,batch_size,config_data
         print("False")
     
     # Check if all elements are equal
+    print(label_whole[0].shape)
+    print(labels.shape)
     print(torch.equal(label_whole[0], labels))
     z = input("Enter")
     return
