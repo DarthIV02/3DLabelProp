@@ -85,8 +85,6 @@ def infer_concat_kp(model,clusters,device,config_model,batch_size,config_data, h
     return cluster_outputs_proba
 
 def train_hd_concat_kp(model,clusters,device,config_model,batch_size,config_data, hd_model=None, labels=None): # This is the model that runs the inference
-    smax = torch.nn.Softmax(dim=1)
-    cluster_outputs_proba = []
     for k in range(len(clusters)//batch_size+(len(clusters)%batch_size!=0)):
         l=0
         sub_clusters = clusters[k*batch_size:min((k+1)*batch_size,len(clusters))]
