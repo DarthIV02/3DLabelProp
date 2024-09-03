@@ -377,7 +377,7 @@ class KPFCNN(nn.Module):
         x = batch.features.clone().detach()
         print("Info")
         print(x.shape)
-        print(batch.points.shape)
+        print(batch.points[0].shape)
         print(batch.labels.shape, batch.labels)
         z = input("Enter")
 
