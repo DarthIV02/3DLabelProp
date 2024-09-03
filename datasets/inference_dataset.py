@@ -194,10 +194,10 @@ class InferenceDataset:
             self.train_hd_sequence(i)
             # Save the tensors\
             # Define file names for saving the tensors
-            weights_path = os.path.join(hd_folder, f'weights_{i}.pt')
-            encoding_path = os.path.join(hd_folder, f'encoding_{i}.pt')
-            torch.save(self.hd_model.model.weight, weights_path)
-            torch.save(self.hd_model.encoder.weight, encoding_path)
+            #weights_path = os.path.join(hd_folder, f'weights_{i}.pt')
+            #encoding_path = os.path.join(hd_folder, f'encoding_{i}.pt')
+            #torch.save(self.hd_model.model.weight, weights_path)
+            #torch.save(self.hd_model.encoder.weight, encoding_path)
 
             file_list = self.compute_small_sequence(0,i)
             ius, miu = self.compute_results(f'Pred_sm_{i}.h5', file_list, 0) # The results are already there?
@@ -236,6 +236,7 @@ class InferenceDataset:
 
                     # Predictions are made here :0
                     total_pred = self.infer_concat(self.model,[pointcloud],self.device,self.cfg_model, 8, self.config, self.hd_model, label)
+                    print("total pred: ", total_pred.shape)
                     #predicted_cloudwise = np.zeros((len(pointcloud),self.n_label+1))
                     #for i in range(len(clusters)):
                     #    predicted_cloudwise[clusters[i],1:self.n_label+1] = np.maximum(total_pred[i],predicted_cloudwise[clusters[i],1:self.n_label+1])
