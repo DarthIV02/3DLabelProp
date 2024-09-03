@@ -191,7 +191,7 @@ class InferenceDataset:
         print("Current Sequence: ", self.trg_datast.sequence)
         print(range(len(self.trg_datast.sequence)))
         for i in tqdm(range(len(self.trg_datast.sequence)),desc="Processing dataset "+str(self.config.target)):
-            self.train_hd_sequence(i)
+            #self.train_hd_sequence(i)
             # Save the tensors\
             # Define file names for saving the tensors
             #weights_path = os.path.join(hd_folder, f'weights_{i}.pt')
@@ -205,6 +205,7 @@ class InferenceDataset:
             print(miu)
 
     def compute_small_sequence(self,seq_number,training_seq):
+        print("Hi :)")
         os.makedirs(osp.join(self.save,f'HD_{self.config.hd_block_stop}', self.val_set.sequence[seq_number]),exist_ok=True)
 
         #get slam poses
