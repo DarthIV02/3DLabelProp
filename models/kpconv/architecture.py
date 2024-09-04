@@ -396,7 +396,7 @@ class KPFCNN(nn.Module):
             else:
                 continue
                 
-        
+        print("Labels inside:", len(batch.labels))
         hd_model.fit(x, batch.labels) # X.shape and batch.labels have different shapes...
 
         del x
