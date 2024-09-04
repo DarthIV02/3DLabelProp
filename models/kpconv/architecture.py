@@ -395,7 +395,6 @@ class KPFCNN(nn.Module):
             else:
                 continue
                 
-        labels.append(batch.labels)
         hd_model.fit(x, batch.labels) # X.shape and batch.labels have different shapes...
 
         del x
@@ -403,7 +402,7 @@ class KPFCNN(nn.Module):
 
         torch.cuda.empty_cache()
 
-        return labels
+        return
 
 
     def loss(self, outputs, labels):

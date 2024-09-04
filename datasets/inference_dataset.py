@@ -91,14 +91,13 @@ def train_hd_concat_kp(model,clusters,device,config_model,batch_size,config_data
         r_clouds, r_inds_list = model.prepare_data(sub_clusters,False,True)
         if 'cuda' in device.type:
             r_clouds.to(device)
-        label_out = model.model.train_hd(r_clouds, config_model, config_data, hd_model, label_whole) # This are the individual predictions
-        label_out_s = label_out.detach().cpu().numpy()
+        model.model.train_hd(r_clouds, config_model, config_data, hd_model, label_whole) # This are the individual predictions
         del label_out
         labels_here = []
         lengths = r_clouds.lengths[0].cpu().numpy()
         for i in range(len(sub_clusters)):
             L = lengths[i]
-            local_cloud = label_out_s[l:l+L]
+            local_cloud = r_clouds.labels[l:l+L]
             labels_here.append(local_cloud[r_inds_list[i]])
             l += L
         label_whole += labels_here
