@@ -98,7 +98,7 @@ def train_hd_concat_kp(model,clusters,device,config_model,batch_size,config_data
         for i in range(len(sub_clusters)):
             L = lengths[i]
             local_cloud = r_clouds.labels[l:l+L]
-            labels_here.append(local_cloud[r_inds_list[i]])
+            labels_here += local_cloud[r_inds_list[i]]
             l += L
         label_whole += labels_here
         del r_clouds
