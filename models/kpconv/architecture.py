@@ -375,6 +375,7 @@ class KPFCNN(nn.Module):
 
         # Get input features
         x = batch.features.clone().detach()
+        print("x: ", x.shape)
 
         # Loop over consecutive blocks
         skip_x = []
