@@ -84,35 +84,35 @@ def infer_concat_kp(model,clusters,device,config_model,batch_size,config_data, h
     return cluster_outputs_proba
 
 def train_hd_concat_kp(model,clusters,device,config_model,batch_size,config_data, hd_model=None, labels=None): # This is the model that runs the inference
-    label_whole = []
+    #label_whole = []
     for k in range(len(clusters)//batch_size+(len(clusters)%batch_size!=0)):
         l=0
         sub_clusters = clusters[k*batch_size:min((k+1)*batch_size,len(clusters))]
         r_clouds, r_inds_list = model.prepare_data(sub_clusters,False,True)
         if 'cuda' in device.type:
             r_clouds.to(device)
-        model.model.train_hd(r_clouds, config_model, config_data, hd_model, label_whole) # This are the individual predictions
-        lab = r_clouds.labels.cpu().numpy()
-        labels_here = []
-        lengths = r_clouds.lengths[0].cpu().numpy()
-        print("Len_sub:", len(sub_clusters))
-        for i in range(len(sub_clusters)):
-            L = lengths[i]
-            local_cloud = lab[l:l+L]
-            labels_here.append(local_cloud[r_inds_list[i]])
-            l += L
-        label_whole += labels_here
+        model.model.train_hd(r_clouds, config_model, config_data, hd_model) # This are the individual predictions
+    #    lab = r_clouds.labels.cpu().numpy()
+     #   labels_here = []
+     #   lengths = r_clouds.lengths[0].cpu().numpy()
+     #   print("Len_sub:", len(sub_clusters))
+    #    for i in range(len(sub_clusters)):
+    #        L = lengths[i]
+    #        local_cloud = lab[l:l+L]
+    #        labels_here.append(local_cloud[r_inds_list[i]])
+    #        l += L
+    #    label_whole += labels_here
         del r_clouds
         torch.cuda.empty_cache()
-    print("Length", len(label_whole))
-    if label_whole != labels.shape:
-        print("False")
+    #print("Length", len(label_whole))
+    #if label_whole != labels.shape:
+    #    print("False")
     
     # Check if all elements are equal
-    print(len(label_whole))
-    print(labels.shape)
-    print(torch.equal(label_whole[0], labels))
-    z = input("Enter")
+    #print(len(label_whole))
+    #print(labels.shape)
+    #print(torch.equal(label_whole[0], labels))
+    #z = input("Enter")
     return
 
 def infer_concat_spv(model,clusters,device,config_model,batch_size):
@@ -466,7 +466,8 @@ class InferenceDataset:
                     # Predictions are made here :0
 
                     self.infer_concat_train(self.model,[accumulated_pointcloud[c] for c in clusters],self.device,self.cfg_model, 8 , self.config, self.hd_model, label) # Change 1 to change the batch size
-
+                    print(self.hd_model.model.weight)
+                    y = input("Enter")
                     st_real = True
 
                     if reset % 10 == 9:
