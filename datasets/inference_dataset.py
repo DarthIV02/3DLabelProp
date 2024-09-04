@@ -92,7 +92,6 @@ def train_hd_concat_kp(model,clusters,device,config_model,batch_size,config_data
         if 'cuda' in device.type:
             r_clouds.to(device)
         model.model.train_hd(r_clouds, config_model, config_data, hd_model, label_whole) # This are the individual predictions
-        del label_out
         labels_here = []
         lengths = r_clouds.lengths[0].cpu().numpy()
         for i in range(len(sub_clusters)):
