@@ -375,7 +375,6 @@ class KPFCNN(nn.Module):
 
         # Get input features
         x = batch.features.clone().detach()
-        print("x: ", x.shape)
 
         # Loop over consecutive blocks
         skip_x = []
@@ -396,7 +395,7 @@ class KPFCNN(nn.Module):
             else:
                 continue
                 
-        print("Labels inside:", len(batch.labels))
+        labels.append(batch.labels)
         hd_model.fit(x, batch.labels) # X.shape and batch.labels have different shapes...
 
         del x
@@ -404,7 +403,7 @@ class KPFCNN(nn.Module):
 
         torch.cuda.empty_cache()
 
-        return
+        return labels
 
 
     def loss(self, outputs, labels):
