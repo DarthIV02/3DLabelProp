@@ -92,23 +92,24 @@ def train_hd_concat_kp(model,clusters,device,config_model,batch_size,config_data
         if 'cuda' in device.type:
             r_clouds.to(device)
         model.model.train_hd(r_clouds, config_model, config_data, hd_model, label_whole) # This are the individual predictions
+        lab = r_clouds.labels.cpu().numpy()
         labels_here = []
         lengths = r_clouds.lengths[0].cpu().numpy()
         print("Len_sub:", len(sub_clusters))
         for i in range(len(sub_clusters)):
             L = lengths[i]
-            local_cloud = r_clouds.labels[l:l+L]
-            labels_here += local_cloud[r_inds_list[i]]
+            local_cloud = lab[l:l+L]
+            labels_here.append(local_cloud[r_inds_list[i]])
             l += L
         label_whole += labels_here
         del r_clouds
         torch.cuda.empty_cache()
     print("Length", len(label_whole))
-    if label_whole[0].shape != labels.shape:
+    if label_whole != labels.shape:
         print("False")
     
     # Check if all elements are equal
-    print(label_whole[0].shape)
+    print(len(label_whole))
     print(labels.shape)
     print(torch.equal(label_whole[0], labels))
     z = input("Enter")
