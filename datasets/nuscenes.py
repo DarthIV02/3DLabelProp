@@ -94,6 +94,4 @@ class nuScenes(PointCloudDataset):
         return len(self.scenes[self.sequence[seq_number]]['label'])
 
     def get_poses_seq(self, seq_number):
-        print("Self sequence")
-        print(self.sequence["scene-0034"])
         return read_transfo(osp.join(osp.join(self.path,self.traj_folder),seq_number+'_traj_complete_result.txt'),False)
