@@ -39,8 +39,8 @@ class nuScenes(PointCloudDataset):
 
         nusc = NuScenes(version='v1.0-mini', dataroot=self.path, verbose=True)
         scene2label = {}
+        print(nusc.scene)
         for sc in nusc.scene:
-            print("Scene: ", sc)
             scene2label[sc['name']] = {}
             file = []
             labels = []
