@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+    name: small-ivannia-volume
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: rook-cephfs-central
+  resources:
+    requests:
+      storage: 20Gi
