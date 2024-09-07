@@ -91,7 +91,8 @@ class nuScenes(PointCloudDataset):
         return self.scenes[self.sequence[seq_number]]
 
     def get_size_seq(self, seq_number):
+        print(self.scenes)
         return len(self.scenes[self.sequence[seq_number]]['label'])
 
     def get_poses_seq(self, seq_number):
-        return read_transfo(osp.join(osp.join(self.path,self.traj_folder),f'{self.sequence[seq_number]}_traj_complete_result.txt'),False)
+        return read_transfo(osp.join(osp.join(self.path,self.traj_folder),self.sequence[seq_number]+'_traj_complete_result.txt'),False)
