@@ -24,12 +24,12 @@ class nuScenes(PointCloudDataset):
         self.sequence = ['scene-'+s for s in self.sequence]
         self.path = config.data.path
         self.dynamic = np.array(dynamic)
-        if os.path.exists(osp.join(self.path,'v1.0-trainval','scene2label.json')):
-            with open(self.path+'/v1.0-trainval/scene2label.json', 'r') as json_file:
+        if os.path.exists(osp.join(self.path,'v1.0-mini','scene2label.json')):
+            with open(self.path+'/v1.0-mini/scene2label.json', 'r') as json_file:
                 self.scenes = json.load(json_file)
         else:
             self.build_scene_json()
-            with open(self.path+'/v1.0-trainval/scene2label.json', 'r') as json_file:
+            with open(self.path+'/v1.0-mini/scene2label.json', 'r') as json_file:
                 self.scenes = json.load(json_file)
         self.traj_folder = config.data.traj_folder
 
@@ -37,7 +37,7 @@ class nuScenes(PointCloudDataset):
         #we are using a custom dictionnary top map sequences to their annotated frames
         from nuscenes import NuScenes
 
-        nusc = NuScenes(version='v1.0-trainval', dataroot=self.path, verbose=True)
+        nusc = NuScenes(version='v1.0-mini', dataroot=self.path, verbose=True)
         scene2label = {
 
         }
@@ -58,7 +58,7 @@ class nuScenes(PointCloudDataset):
             scene2label[sc['name']]['label'] = labels
 
         import json 
-        with open(self.path+'/v1.0-trainval/scene2label.json','w') as fp:
+        with open(self.path+'/v1.0-mini/scene2label.json','w') as fp:
             json.dump(scene2label,fp)
 
     def loader(self, seq, idx):
