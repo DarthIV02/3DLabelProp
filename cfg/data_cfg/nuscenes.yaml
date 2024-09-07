@@ -1,6 +1,6 @@
 data:
   name: nuscenes
-  path: /root/main/dataset-nuscenes/nuscenes
+  path: /root/main/dataset/nuscenes
   traj_folder : new_traj_nuscenes
   
 labels: 
