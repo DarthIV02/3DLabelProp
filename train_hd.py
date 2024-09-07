@@ -31,7 +31,7 @@ if __name__ == "__main__":
         train_set_2 = SemanticKITTI(target_data_cfg,'train')
         target_set = SemanticKITTI(target_data_cfg,'valid')
     elif cfg.target == "nuscenes":
-        target_data_cfg = OmegaConf.load(osp.join(cfg.data_cfg_path,"nuscenes-mini.yaml"))
+        target_data_cfg = OmegaConf.load(osp.join(cfg.data_cfg_path,"nuscenes_mini.yaml"))
         train_set_2 = nuScenes(target_data_cfg,'train')
         target_set = nuScenes(target_data_cfg,'valid')
     elif cfg.target == "semanticposs":
