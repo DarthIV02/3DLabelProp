@@ -10,7 +10,7 @@
 #include <pybind11/stl.h>
 #include <random>
 namespace py = pybind11;
-using namespace mlpack::kmeans;
+using namespace mlpack::KMeans;
 
 static const float SIGMA = 0.09; //(2*0.14**2)
 
