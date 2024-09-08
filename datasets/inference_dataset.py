@@ -210,7 +210,7 @@ class InferenceDataset:
             self.compute_sequence(i)
             
     def compute_hd_dataset(self, hd_folder):
-        print("Current Sequence: ", self.trg_datast.sequence)
+        #print("Current Sequence: ", self.trg_datast.sequence)
         print(range(len(self.trg_datast.sequence)))
         for i in tqdm(range(len(self.trg_datast.sequence)),desc="Processing dataset "+str(self.config.target)):
             self.train_hd_sequence(i)
