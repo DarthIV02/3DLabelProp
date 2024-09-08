@@ -10,8 +10,8 @@ apt-get -y install qt5-default
 #cd /home
 #git clone https://github.com/DarthIV02/3DLabelProp.git
 #cd 3DLabelProp/
-echo Y | pip install -r requirements.txt
 echo Y | conda install pytorch==1.7.1 torchvision torchaudio cudatoolkit=11.0 -c pytorch
+echo Y | pip install -r requirements.txt
 cd cpp_wrappers
 bash compile_wrappers.sh
 pip install --force-reinstall torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu117
