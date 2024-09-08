@@ -3,6 +3,7 @@ apt -y install python3-pybind11
 apt-get -y install liblapack-dev
 apt-get -y install libblas-dev
 apt-get -y install libarmadillo-dev
+apt-get -y install qt5-default
 # sudo apt-get install libmlpack-dev # add again if crashes with fatal error: mlpack/methods/kmeans/kmeans.hpp
 #conda create --name 3DLabelProp python=3.7
 #conda activate 3DLabelProp
