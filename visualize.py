@@ -7,6 +7,9 @@ import yaml
 from auxiliary.laserscanvis import LaserScanVis
 from auxiliary.dataset import SemKITTI_sk
 from torch.utils.data import DataLoader
+from vispy.scene import SceneCanvas
+from vispy.util.event import Event
+import time
 
 import csv
 import datetime
@@ -144,13 +147,24 @@ if __name__ == '__main__':
   
   dataloader = DataLoader(mydataset, batch_size=1, shuffle=FLAGS.shuffle, collate_fn=collate_fn_BEV, num_workers=0)
 
+  data = enumerate(dataloader)
+
+  def temp():
+    start = time.time()
+    _, (points, _, labels, _, _) = next(data)
+    end = time.time()
+    print("Loaded points in {0} seconds".format(end-start))
+    return points, labels, labels, end-start
+
   # create a visualizer
   # TODO update class variables
-  vis = LaserScanVis(dataloader=dataloader,
-                    dataset=mydataset,
-                    enable_auto=FLAGS.enable_auto,
-                    semantics=(not FLAGS.ignore_semantics),
-                    verbose_runtime=FLAGS.print_data)
+  vis = LaserScanVis(color_dict,
+                      semantics=(not FLAGS.ignore_semantics),
+                      verbose_runtime=FLAGS.print_data, 
+                      pullData=temp,
+                      percent_points=1)
+                    #key_press=key_press,
+                    #canvas = canvas)
 
   # print instructions
   print("To navigate:")
@@ -161,6 +175,7 @@ if __name__ == '__main__':
   if not FLAGS.log_data:
     # run visualizer
     vis.run()
+
     quit()
 
   # if log_data flag is true, open csv file for writing

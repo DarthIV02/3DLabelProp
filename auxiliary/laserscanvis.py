@@ -3,6 +3,7 @@
 
 import vispy
 from vispy.scene import visuals, SceneCanvas
+from vispy.scene.visuals import Text
 import numpy as np
 from matplotlib import pyplot as plt
 import time
@@ -10,16 +11,22 @@ import time
 class LaserScanVis:
   """Class that creates and handles a visualizer for a pointcloud"""
 
-  def __init__(self, dataloader, dataset, enable_auto = False, semantics=True, verbose_runtime=False):
-    self.dataloader=enumerate(dataloader)
-    self.dataset=dataset
+  def __init__(self, 
+               sem_color_dict,          #label color map
+               semantics=True,          #if True, will print ground-truth data
+               predictions=True,        #if True, will print predicted data. requires semantics=True
+               verbose_runtime=False,   #if True, will print time taken to load/plot data
+               csvwriter=None,          #writes timedata to external file
+               pullData=None,           #callable for extracting data to plot
+               percent_points = 1.0):
     self.semantics = semantics
-    self.csvwriter = None
-    self.verbose_runtime = verbose_runtime
+    self.predictions = predictions
+    self.percent_points = percent_points
+    self.pullData = pullData
 
-    self.DEBUG_AUTO = enable_auto
-    # number of scans to visualize during auto visualization
-    self.DEBUG_AUTO_VALUE = 100
+    # useful for determining runtime data, not required
+    self.csvwriter = csvwriter
+    self.verbose_runtime = verbose_runtime
 
     # time (s) between each individual scan for timer-based visualization
     self.TIME_INTERVAL = 0.5
@@ -28,27 +35,36 @@ class LaserScanVis:
     if not self.semantics and self.instances:
       print("Instances are only allowed in when semantics=True")
       raise ValueError
+    if not self.semantics and self.predictions:
+      print("Predictions require ground truth visualization: semantics=True")
+      raise ValueError
+    
+    self.sem_color_dict = sem_color_dict
+
+    max_sem_key = 0
+    for key, data in sem_color_dict.items():
+        if key + 1 > max_sem_key:
+            max_sem_key = key + 1
+    self.sem_color_lut = np.zeros((max_sem_key + 100, 3), dtype=np.float32)
+    for key, value in sem_color_dict.items():
+        self.sem_color_lut[key] = np.array(value, np.float32) / 255.0
 
     self.reset()
-    self.update_scan()
+    self.next_scan()
 
-  # wrapper method for clock event callback
-  def next_scan(self, event):
-    self.update_scan()
+  # method for clock event callback
+  def next_scan(self, event=None):
+    data = self.prep_data(self.pullData())
+    self.update_scan(data)
 
   def reset(self):
     """ Reset. """
-    # last key press (it should have a mutex, but visualization is not
-    # safety critical, so let's do things wrong)
-    self.action = "no"  # no, next, back, quit are the possibilities
-
     # new canvas prepared for visualizing data
     self.canvas = SceneCanvas(keys='interactive', show=True, size=(1600, 600))
     # interface (n next, b back, q quit, very simple)
     self.canvas.events.key_press.connect(self.key_press)
     self.canvas.events.draw.connect(self.draw)
     
-    #Change camera speed
     self.clock = vispy.app.timer.Timer(interval=self.TIME_INTERVAL, connect=self.next_scan)
 
     # grid
@@ -62,7 +78,8 @@ class LaserScanVis:
     self.scan_vis = visuals.Markers()
     self.scan_view.camera = vispy.scene.cameras.turntable.TurntableCamera(scale_factor = zoom)
     self.scan_view.add(self.scan_vis)
-    visuals.XYZAxis(parent=self.scan_view.scene)
+    visuals.XYZAxis(parent=self.scan_view.scene)    
+    Text('Raw Scan', parent=self.scan_view, color='white', anchor_x="left", anchor_y="bottom", font_size=18)
     # add semantics
     if self.semantics:
       print("Using semantics in visualizer")
@@ -74,7 +91,20 @@ class LaserScanVis:
       self.sem_view.add(self.sem_vis)
       visuals.XYZAxis(parent=self.sem_view.scene)
       # synchronize raw and semantic cameras
-      self.sem_view.camera.link(self.scan_view.camera)    
+      self.sem_view.camera.link(self.scan_view.camera)  
+      Text('Ground Truth', parent=self.sem_view, color='white', anchor_x="left", anchor_y="bottom", font_size=18)  
+    if self.predictions:
+      print("Plotting predictions in visualizer")
+      self.pred_view = vispy.scene.widgets.ViewBox(
+          border_color='white', parent=self.canvas.scene)
+      self.grid.add_widget(self.pred_view, 0, 2)
+      self.pred_vis = visuals.Markers()
+      self.pred_view.camera = vispy.scene.cameras.turntable.TurntableCamera(scale_factor = zoom)
+      self.pred_view.add(self.pred_vis)
+      visuals.XYZAxis(parent=self.pred_view.scene)
+      # synchronize raw and semantic cameras
+      self.pred_view.camera.link(self.scan_view.camera)
+      Text('Predicted Labels', parent=self.pred_view, color='white', anchor_x="left", anchor_y="bottom", font_size=18)
 
   def get_mpl_colormap(self, cmap_name):
     cmap = plt.get_cmap(cmap_name)
@@ -87,53 +117,86 @@ class LaserScanVis:
 
     return color_range.reshape(256, 3).astype(np.float32) / 255.0
 
+  def get_colors(self, points, gt_labels, pred_labels):
+        power = 16
+        range_data = np.linalg.norm(points, 2, axis=1)
+        range_data = range_data**(1 / power)
+        viridis_range = ((range_data - range_data.min()) /
+                        (range_data.max() - range_data.min()) *
+                        255).astype(np.uint8)
+        viridis_map = self.get_mpl_colormap("viridis")
+        self.viridis_color = viridis_map[viridis_range]
+
+        sem_label = gt_labels & 0xFFFF  # semantic label in lower half
+        self.sem_label_color = self.sem_color_lut[sem_label]
+        self.sem_label_color = self.sem_label_color.reshape((-1, 3))
+
+        sem_label = pred_labels & 0xFFFF  # semantic label in lower half
+        self.sem_gt_label_color = self.sem_color_lut[sem_label]
+        self.sem_gt_label_color = self.sem_gt_label_color.reshape((-1, 3))
+
   #@getTime
-  def update_scan(self):
-    # record start time
+  def update_scan(self, data):
+    points, gt_labels, pred_labels, t = data
+
     start = time.time()
-
-    # iterate loader to obtain datapoints and color maps
-    _, (points, _, _, viridis_colors, sem_label_color) = next(self.dataloader)
-
-    # record end loading time
+    self.get_colors(points, gt_labels, pred_labels)
     load = time.time()
 
     self.scan_vis.set_data(points,
-                           face_color=viridis_colors[..., ::-1],
-                           edge_color=viridis_colors[..., ::-1],
+                           face_color=self.viridis_color[..., ::-1],
+                           edge_color=self.viridis_color[..., ::-1],
                            size=1)
     scan_data = time.time()
     # plot semantics
     if self.semantics:
       self.sem_vis.set_data(points,
-                            face_color=sem_label_color[..., ::-1],
-                            edge_color=sem_label_color[..., ::-1],
+                            face_color=self.sem_gt_label_color[..., ::-1],
+                            edge_color=self.sem_gt_label_color[..., ::-1],
                             size=1)
     sem_data = time.time()
+    # plot predictions
+    if self.predictions:
+      self.pred_vis.set_data(points,
+                             face_color=self.sem_label_color[..., ::-1],
+                             edge_color=self.sem_label_color[..., ::-1],
+                             size=1)
+    pred_data = time.time()
 
     if self.verbose_runtime:
       print("Visualizing {0} points".format(len(points)))
       print("""Time Elapsed: 
-            Loading the data:\t{0}
-            Plotting Raw:\t\t{1}
-            Plotting Semantic:\t{2}
-            Total time:\t\t{3}"""
-            .format(load-start, scan_data-load, sem_data-scan_data, sem_data-start))
+            Loading Colors:\t\t{0}
+            Plotting Raw:\t\t\t{1}
+            Plotting Ground Truth:\t{2}
+            Plotting Predictions:\t\t{3}
+            Total time:\t\t\t{4}"""
+            .format(load-start, scan_data-load, sem_data-scan_data, pred_data-sem_data, (pred_data-start) + t))
     
-    if not(self.csvwriter == None):
+    '''if not(self.csvwriter == None):
       self.csvwriter.writerow({
         'Points':len(points),
         'LoadData':load-start,
         'PlotRaw':scan_data-load,
         'PlotSem':sem_data-scan_data})
+    return'''
+
+  def prep_data(self, data):
+    if self.percent_points == 1:
+      return data
+    
+    # generate bitmask
+    mask = np.ones(len(data[0]), dtype=bool)
+    mask[:int(len(mask)*(1-self.percent_points))] = False
+    np.random.shuffle(mask)
+
+    return data[0][mask, ...], data[1][mask, ...], data[2][mask, ...], data[3]
 
   # interface
   def key_press(self, event):
-    #if self.DEBUG_AUTO:
-    #  return
     self.canvas.events.key_press.block()
     if event.key == 'N' and not self.clock.running:
-      self.update_scan()
+      self.next_scan()
     elif event.key == 'Q' or event.key == 'Escape':
       self.destroy()
     elif event.key == ' ':
@@ -141,9 +204,6 @@ class LaserScanVis:
         self.clock.start()
       else:
         self.clock.stop()
-    elif event.key == 'D' and self.DEBUG_AUTO:
-      for i in range(self.DEBUG_AUTO_VALUE):
-        self.update_scan()
 
   def draw(self, event):
     if self.canvas.events.key_press.blocked():
@@ -155,7 +215,4 @@ class LaserScanVis:
     vispy.app.quit()
 
   def run(self):
-    if self.DEBUG_AUTO and not self.csvwriter:
-      print("Error: CSV writer required for auto visualization. log_data=True and log_path must be specified")
-      raise ValueError
     vispy.app.run()
