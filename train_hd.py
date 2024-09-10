@@ -31,7 +31,7 @@ if __name__ == "__main__":
         train_set_2 = SemanticKITTI(target_data_cfg,'train')
         target_set = SemanticKITTI(target_data_cfg,'valid')
     elif cfg.target == "nuscenes":
-        target_data_cfg = OmegaConf.load(osp.join(cfg.data_cfg_path,"nuscenes_mini.yaml"))
+        target_data_cfg = OmegaConf.load(osp.join(cfg.data_cfg_path,"nuscenes_mini.yaml")) # Change if using full nuscenes
         train_set_2 = nuScenes(target_data_cfg,'train')
         target_set = nuScenes(target_data_cfg,'valid')
     elif cfg.target == "semanticposs":
@@ -101,11 +101,11 @@ if __name__ == "__main__":
     if cfg.test_hd:
 
         # Define file names for saving the tensors
-        weights_path = os.path.join(hd_folder, 'weights_9.pt')
-        encoding_path = os.path.join(hd_folder, 'encoding_9.pt')
+        #weights_path = os.path.join(hd_folder, 'weights_9.pt')
+        #encoding_path = os.path.join(hd_folder, 'encoding_9.pt')
         
-        model_hd.model.weight = torch.load(weights_path)
-        model_hd.encoder.weight = torch.load(encoding_path)
+        #model_hd.model.weight = torch.load(weights_path)
+        #model_hd.encoder.weight = torch.load(encoding_path)
         
         output_dataset_2 = InferenceDataset(cfg, train_set, target_set, model, model_information, model_hd)
         
