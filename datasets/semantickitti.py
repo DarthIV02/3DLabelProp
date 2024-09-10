@@ -24,6 +24,7 @@ class SemanticKITTI(PointCloudDataset):
         self.path = config.data.path
         self.traj_folder = config.data.traj_folder
         self.dynamic = np.array(dynamic)
+        self.color_map = config.color_map
 
     def loader(self, seq, frame):
         seq_path = osp.join(osp.join(self.path,'dataset/sequences'),str(seq).zfill(2))

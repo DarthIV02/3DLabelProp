@@ -32,6 +32,7 @@ class nuScenes(PointCloudDataset):
             with open(self.path+'/v1.0-mini/scene2label.json', 'r') as json_file:
                 self.scenes = json.load(json_file)
         self.traj_folder = config.data.traj_folder
+        self.color_map = config.color_map
 
     def build_scene_json(self):
         #we are using a custom dictionnary top map sequences to their annotated frames

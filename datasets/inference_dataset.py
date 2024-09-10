@@ -5,6 +5,7 @@ import os.path as osp
 from utils.slam import *
 from tqdm import tqdm
 import h5py
+from auxiliary.laserscanvis import LaserScanVis
 
 try:
     from torchsparse.utils.quantize import sparse_quantize
@@ -167,6 +168,20 @@ class InferenceDataset:
         self.hd_model = hd_model
         if val_set:
             self.val_set = val_set
+
+        color_dict = trg_datast.color_map
+        self.vis = LaserScanVis(color_dict,
+                      semantics=False,
+                      verbose_runtime=False, 
+                      pullData=self.get_data,
+                      percent_points=1)
+        
+    def get_data(data):
+        start = time.time()
+        _, (points, _, labels, _, _) = next(data)
+        end = time.time()
+        print("Loaded points in {0} seconds".format(end-start))
+        return points, labels, labels, end-start
 
     def compute_results(self, name, file_list=None, seq=None):
         if self.config.target == "semantickitti":
