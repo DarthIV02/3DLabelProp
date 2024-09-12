@@ -4,7 +4,7 @@ cluster_cfg: ./cfg/clust_cfg/cluster_20.yaml
 model_cfg: ./cfg/model_cfg/kp_sk_infer.yaml
 data_cfg_path: ./cfg/data_cfg
 subsample: 1
-save_pred_path: /root/main/3DLabelProp/results_3DLabelProp
+save_pred_path: /home/ubuntu/3DLabelProp/results_3DLabelProp
 train_hd: True
 test_hd: False
 hd_param: './cfg/hd_param.yaml'
