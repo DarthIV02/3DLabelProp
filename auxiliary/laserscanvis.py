@@ -59,7 +59,9 @@ class LaserScanVis:
 
   # method for clock event callback
   def next_scan(self, points, pred, labels, time_x=None, event=None):
-    data = self.prep_data((points, pred, labels, time_x))
+    centroid = np.mean(points, axis=0)
+    centered_points = points - centroid
+    data = self.prep_data((centered_points, pred, labels, time_x))
     self.update_scan(data)
 
   def reset(self):
@@ -93,7 +95,6 @@ class LaserScanVis:
       self.grid.add_widget(self.sem_view, 0, 1)
       self.sem_vis = visuals.Markers()
       self.sem_view.camera = vispy.scene.cameras.turntable.TurntableCamera(scale_factor = zoom)
-      self.sem_view.camera.center = (0, 0, 0)
       self.sem_view.add(self.sem_vis)
       visuals.XYZAxis(parent=self.sem_view.scene)
       # synchronize raw and semantic cameras
