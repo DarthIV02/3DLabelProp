@@ -171,7 +171,7 @@ class InferenceDataset:
 
         color_dict = trg_datast.color_map
         self.vis = LaserScanVis(color_dict,
-                      semantics=False,
+                      semantics=True,
                       verbose_runtime=False, 
                       pullData=self.get_data,
                       percent_points=1)
