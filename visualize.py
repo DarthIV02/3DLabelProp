@@ -198,16 +198,7 @@ if __name__ == '__main__':
     print("Must specify a log_path")
     quit()
 
-  # open config file
-  try:
-    print("Opening config file %s" % FLAGS.config)
-    CFG = yaml.safe_load(open(FLAGS.config, 'r'))
-  except Exception as e:
-    print(e)
-    print("Error opening yaml file.")
-    quit()
-
-  color_dict = CFG["color_map"]
+  color_dict = cfg.color_map
 
   def temp():
     start = time.time()
