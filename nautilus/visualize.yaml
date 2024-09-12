@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: xgl-v2
+  name: xgl-v24
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: xgl-v2
+      app: xgl-v24
   template:
     metadata:
       labels:
-        app: xgl-v2
+        app: xgl-v24
     spec:
-      hostname: xgl-v2
+      hostname: xgl-v24
       containers:
-      - name: xgl-v2
+      - name: xgl-v24
         # Change tag `latest` to Ubuntu versions such as `24.04`, use a persistent tag such as `24.04-20210101010101` to persist a certain container version
-        image: ghcr.io/selkies-project/nvidia-glx-desktop:20.04
+        image: ghcr.io/selkies-project/nvidia-glx-desktop:20.04 #18.04-legacy
         env:
         - name: TZ
           value: "UTC"

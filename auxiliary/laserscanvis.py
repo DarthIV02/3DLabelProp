@@ -32,9 +32,9 @@ class LaserScanVis:
     self.TIME_INTERVAL = 0.5
 
     # sanity check
-    if not self.semantics and self.instances:
-      print("Instances are only allowed in when semantics=True")
-      raise ValueError
+    #if not self.semantics and self.instances:
+    #  print("Instances are only allowed in when semantics=True")
+    #  raise ValueError
     if not self.semantics and self.predictions:
       print("Predictions require ground truth visualization: semantics=True")
       raise ValueError
