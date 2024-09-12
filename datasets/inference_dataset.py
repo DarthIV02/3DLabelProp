@@ -176,9 +176,9 @@ class InferenceDataset:
                       pullData=self.get_data,
                       percent_points=1)
         
-    def get_data(data):
+    def get_data(points, labels):
         start = time.time()
-        _, (points, _, labels, _, _) = next(data)
+        #_, (points, _, labels, _, _) = points, labels
         end = time.time()
         print("Loaded points in {0} seconds".format(end-start))
         return points, labels, labels, end-start
