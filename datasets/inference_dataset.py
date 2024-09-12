@@ -309,8 +309,7 @@ class InferenceDataset:
 
         print(osp.join(self.save, f'HD_{self.config.hd_block_stop}', seq, 'Pred.h5'))
         with h5py.File(osp.join(self.save, f'HD_{self.config.hd_block_stop}', seq, 'Pred.h5'), 'w') as hdf_file:
-            print(frame_i)
-            if not frame_i:
+            if frame_i == None:
                 for st in start:
                     for frame in tqdm(range(st,len_seq,len(start)),leave=False,desc="Sequence: " + str(self.trg_datast.sequence[seq_number]) + ", subsample number " +str(st+1)+"/"+str(len(start))): # len_seq   
                     #for frame in range(st,len_seq,len(start)):                   
