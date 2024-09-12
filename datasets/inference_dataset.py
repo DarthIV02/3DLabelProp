@@ -408,7 +408,7 @@ class InferenceDataset:
                 local_rot, local_trans = rot[frame_i], trans[frame_i]
 
                 #add channel for semantic and for timestamp
-                pointcloud = np.hstack((pointcloud[:,:4],np.zeros(len(pointcloud)).reshape(-1,1)-1,np.zeros(len(pointcloud)).reshape(-1,1)+frame)) # np.zeros(len(pointcloud)).reshape(-1,1)-1
+                pointcloud = np.hstack((pointcloud[:,:4],np.zeros(len(pointcloud)).reshape(-1,1)-1,np.zeros(len(pointcloud)).reshape(-1,1)+frame_i)) # np.zeros(len(pointcloud)).reshape(-1,1)-1
                 pointcloud = apply_transformation(pointcloud, (local_rot, local_trans))
                 print("pointcloud: ", pointcloud.shape)
                 total_pred = self.infer_concat(self.model,[pointcloud],self.device,self.cfg_model, 8, self.config, self.hd_model, label)
