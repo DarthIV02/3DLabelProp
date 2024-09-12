@@ -130,6 +130,8 @@ if __name__ == '__main__':
   
   else:
       raise  NameError('target dataset not supported')
+  
+  color_dict = target_set.color_map
 
   #Get info relative to the model
   if cfg.architecture.model == "KPCONV":
@@ -197,8 +199,6 @@ if __name__ == '__main__':
   if FLAGS.log_data and not FLAGS.log_path:
     print("Must specify a log_path")
     quit()
-
-  color_dict = cfg.color_map
 
   def temp():
     start = time.time()
