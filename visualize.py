@@ -32,12 +32,6 @@ def collate_fn_BEV(data):
 if __name__ == '__main__':
   parser = argparse.ArgumentParser("./visualize.py")
   parser.add_argument(
-      '--dataset', '-d',
-      type=str,
-      required=True,
-      help='Dataset to visualize. No Default',
-  )
-  parser.add_argument(
       '--sequence', '-s',
       type=str,
       default="00",
@@ -184,7 +178,6 @@ if __name__ == '__main__':
   # print summary of what we will do
   print("*" * 80)
   print("INTERFACE:")
-  print("Dataset", FLAGS.dataset)
   print("Config", FLAGS.config)
   print("Sequence", FLAGS.sequence)
   print("ignore_semantics", FLAGS.ignore_semantics)
