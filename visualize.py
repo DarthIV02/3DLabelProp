@@ -200,9 +200,9 @@ if __name__ == '__main__':
     print("Must specify a log_path")
     quit()
 
-  def temp():
+  def temp(i):
     start = time.time()
-    _, (points, _, labels, _, _) = output_dataset.compute_sequence(0,i)
+    points, labels = output_dataset.compute_sequence(0,i)
     end = time.time()
     print("Loaded points in {0} seconds".format(end-start))
     return points, labels, labels, end-start

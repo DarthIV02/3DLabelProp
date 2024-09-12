@@ -59,7 +59,7 @@ class LaserScanVis:
 
   # method for clock event callback
   def next_scan(self, points, labels, time_x=None, event=None):
-    data = self.prep_data([points, labels, labels, time_x])
+    data = self.prep_data((points, labels, labels, time_x))
     self.update_scan(data)
 
   def reset(self):
