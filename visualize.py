@@ -38,13 +38,6 @@ if __name__ == '__main__':
       help='Dataset to visualize. No Default',
   )
   parser.add_argument(
-      '--config', '-c',
-      type=str,
-      required=False,
-      default="config/semantic-kitti.yaml",
-      help='Dataset config file. Defaults to %(default)s',
-  )
-  parser.add_argument(
       '--sequence', '-s',
       type=str,
       default="00",
