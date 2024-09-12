@@ -21,8 +21,8 @@ spec:
         volumeMounts:
           - mountPath: /mnt/data
             name: data
-#          - mountPath: /root/main
-#            name: small-ivannia-volume
+          - mountPath: /root/main
+            name: small-ivannia-volume
           - mountPath: /dev/shm
             name: cache-volume
         resources:
@@ -35,9 +35,9 @@ spec:
              cpu: "1"
              ephemeral-storage: "512Gi"
       volumes:
-#        - name: small-ivannia-volume
-#          persistentVolumeClaim:
-#            claimName: small-ivannia-volume
+        - name: small-ivannia-volume
+          persistentVolumeClaim:
+            claimName: small-ivannia-volume
         - name: data
           emptyDir: {}
         - emptyDir:
