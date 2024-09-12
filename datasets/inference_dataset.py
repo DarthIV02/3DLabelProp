@@ -425,7 +425,7 @@ class InferenceDataset:
                 #hdf_file.create_dataset(f'{str(frame)}', data=to_save)
                 #self.vis.next_scan(pointcloud, to_save[0], 0)
                 #st_real = True
-                return pointcloud[:, 0:3], to_save[:, 0]
+                return pointcloud[:, 0:3], to_save[:, 0], to_save[:,-1]
 
     def train_hd_sequence(self,seq_number):
 

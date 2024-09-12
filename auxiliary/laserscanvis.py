@@ -54,12 +54,12 @@ class LaserScanVis:
     self.i = 0
 
     self.reset()
-    pc, labels = self.inference_model.compute_sequence(0,0)
-    self.next_scan(pc, labels)
+    pc, pred, labels = self.inference_model.compute_sequence(0,0)
+    self.next_scan(pc, pred, labels)
 
   # method for clock event callback
-  def next_scan(self, points, labels, time_x=None, event=None):
-    data = self.prep_data((points, labels, labels, time_x))
+  def next_scan(self, points, pred, labels, time_x=None, event=None):
+    data = self.prep_data((points, pred, labels, time_x))
     print(data)
     self.update_scan(data)
 
@@ -204,8 +204,8 @@ class LaserScanVis:
     self.canvas.events.key_press.block()
     if event.key == 'N' and not self.clock.running:
       self.i += 1
-      self.inference_model.compute_sequence(0, self.i)
-      self.next_scan()
+      pc, pred, label = self.inference_model.compute_sequence(0, self.i)
+      self.next_scan(pc, pred, label)
     elif event.key == 'Q' or event.key == 'Escape':
       self.destroy()
     elif event.key == ' ':
