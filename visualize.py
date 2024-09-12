@@ -10,6 +10,13 @@ from torch.utils.data import DataLoader
 from vispy.scene import SceneCanvas
 from vispy.util.event import Event
 import time
+import importlib
+import argparse
+from omegaconf import OmegaConf
+import os.path as osp
+from datasets.inference_dataset import *
+from datasets import *
+import torch 
 
 import csv
 import datetime
@@ -91,7 +98,95 @@ if __name__ == '__main__':
     action='store_true',
     help='Shuffles scans before visualization. Defaults to False'
   )
+  parser.add_argument(
+    '-cfg', 
+    '--config', 
+    help='the path to the setup config file', 
+    default='cfg/train_sk.yaml')
   FLAGS, unparsed = parser.parse_known_args()
+
+  cfg = OmegaConf.load(FLAGS.config)
+  cluster_cfg = OmegaConf.load(cfg.cluster_cfg)
+  model_cfg = OmegaConf.load(cfg.model_cfg)
+  cfg = OmegaConf.merge(cfg,cluster_cfg,model_cfg)
+
+  #Get info relative to the set
+  if cfg.source == "semantickitti":
+      source_data_cfg = OmegaConf.load(osp.join(cfg.data_cfg_path,"semantic-kitti.yaml"))
+      train_set = SemanticKITTI(source_data_cfg,'train')
+  elif cfg.source == "nuscenes":
+      source_data_cfg = OmegaConf.load(osp.join(cfg.data_cfg_path,"nuscenes.yaml"))
+      train_set = nuScenes(source_data_cfg,'train')
+  else:
+      raise  NameError('source dataset not supported')
+
+  if cfg.target == "semantickitti":
+      target_data_cfg = OmegaConf.load(osp.join(cfg.data_cfg_path,"semantic-kitti.yaml"))
+      train_set_2 = SemanticKITTI(target_data_cfg,'train')
+      target_set = SemanticKITTI(target_data_cfg,'valid')
+  elif cfg.target == "nuscenes":
+      target_data_cfg = OmegaConf.load(osp.join(cfg.data_cfg_path,"nuscenes_mini.yaml")) # Change if using full nuscenes
+      train_set_2 = nuScenes(target_data_cfg,'train')
+      target_set = nuScenes(target_data_cfg,'valid')
+  elif cfg.target == "semanticposs":
+      target_data_cfg = OmegaConf.load(osp.join(cfg.data_cfg_path,"semanticposs.yaml"))
+      train_set_2 = SemanticPOSS(target_data_cfg,'train')
+      target_set = SemanticPOSS(target_data_cfg,'valid')
+  elif cfg.target == "semantickitti-nuscenes":
+      target_data_cfg = OmegaConf.load(osp.join(cfg.data_cfg_path,"semantic-kitti-nuscenes.yaml"))
+      train_set_2 = SemanticKITTI_Nuscenes(target_data_cfg,'train')
+      target_set = SemanticKITTI_Nuscenes(target_data_cfg,'valid')
+  elif "pandaset" in cfg.target:
+      target_data_cfg = OmegaConf.load(osp.join(cfg.data_cfg_path,cfg.target+".yaml"))
+      train_set_2 = Pandaset(target_data_cfg,'train')
+      target_set = Pandaset(target_data_cfg,'valid')
+  
+  else:
+      raise  NameError('target dataset not supported')
+
+  #Get info relative to the model
+  if cfg.architecture.model == "KPCONV":
+      module = importlib.import_module('models.kpconv.kpconv')
+      model_information = getattr(module, cfg.architecture.type)()
+      model_information.num_classes = train_set.get_n_label()
+      model_information.ignore_label = -1
+      model_information.in_features_dim = model_cfg.architecture.n_features
+      model_information.train_hd = cfg.train_hd
+      from models.kpconv_model import SemanticSegmentationModel
+      module = importlib.import_module('models.kpconv.architecture')
+      model_type = getattr(module, cfg.architecture.type)
+      model = SemanticSegmentationModel(model_information,cfg,model_type)
+  elif cfg.architecture.model == "SPVCNN":
+      module = importlib.import_module('models.spvcnn.spvcnn')
+      model_information = getattr(module, cfg.architecture.type)
+      model_information.num_classes = train_set.get_n_label()
+      model_information.ignore_label = -1
+      model_information.in_features_dim = model_cfg.architecture.n_features
+      from models.spvcnn_model import SemanticSegmentationSPVCNNModel
+      model = SemanticSegmentationSPVCNNModel(model_information,cfg)
+  else:
+      raise  NameError('model not supported')
+      
+  # Get HD info
+  if cfg.train_hd or cfg.test_hd:
+      hd_cfg = OmegaConf.load(cfg.hd_param)
+      cfg = OmegaConf.merge(cfg,hd_cfg) 
+      from models.HD import OnlineHD
+      device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+      #device = torch.device("cpu")
+      model_hd = OnlineHD(hd_cfg.n_features, hd_cfg.n_dimensions, hd_cfg.n_classes, epochs = hd_cfg.epochs, device=device)
+  
+  # Define the path for the "HD" folder
+  hd_folder = os.path.join(cfg.save_pred_path, f'HD_{hd_cfg.hd_block_stop}')
+
+  # Check if the "HD" folder exists
+  if not os.path.exists(hd_folder):
+      os.makedirs(hd_folder)
+      print(f"Folder 'HD' created at {hd_folder}")
+  else:
+      print(f"Folder 'HD' already exists at {hd_folder}")
+  
+  output_dataset = InferenceDataset(cfg, train_set, target_set, model, model_information, model_hd)
 
   # print summary of what we will do
   print("*" * 80)
@@ -126,32 +221,11 @@ if __name__ == '__main__':
     print("Error opening yaml file.")
     quit()
 
-  # fix sequence name
-  FLAGS.sequence = '{0:02d}'.format(int(FLAGS.sequence))
-
-  # does sequence folder exist?
-  scan_paths = os.path.join(FLAGS.dataset, "sequences",
-                            FLAGS.sequence, "velodyne")
-  if os.path.isdir(scan_paths):
-    print(f"Sequence folder {scan_paths} exists! Using sequence from {scan_paths}")
-  else:
-    print(f"Sequence folder {scan_paths} doesn't exist! Exiting...")
-    quit()
-
   color_dict = CFG["color_map"]
-  mydataset = SemKITTI_sk(data_path = "dataset/sequences", 
-                          imageset="train", 
-                          label_mapping="config/semantic-kitti-00.yaml",
-                          sem_color_dict=color_dict,
-                          percentLabels=1)
-  
-  dataloader = DataLoader(mydataset, batch_size=1, shuffle=FLAGS.shuffle, collate_fn=collate_fn_BEV, num_workers=0)
-
-  data = enumerate(dataloader)
 
   def temp():
     start = time.time()
-    _, (points, _, labels, _, _) = next(data)
+    _, (points, _, labels, _, _) = output_dataset.compute_sequence(0,i)
     end = time.time()
     print("Loaded points in {0} seconds".format(end-start))
     return points, labels, labels, end-start
@@ -162,7 +236,8 @@ if __name__ == '__main__':
                       semantics=(not FLAGS.ignore_semantics),
                       verbose_runtime=FLAGS.print_data, 
                       pullData=temp,
-                      percent_points=1)
+                      percent_points=1,    
+                      inference_model=output_dataset)
                     #key_press=key_press,
                     #canvas = canvas)
 
@@ -177,16 +252,3 @@ if __name__ == '__main__':
     vis.run()
 
     quit()
-
-  # if log_data flag is true, open csv file for writing
-  now = datetime.datetime.now()
-  with open(FLAGS.log_path + '/{0}.csv'.format('{0}'.format(now).replace(" ", "_").replace(":", "-")[:19]),
-            'w', newline='') as csvfile:
-    print("Saving runtime data to ", csvfile.name)
-    fieldNames = ['Points','LoadData', 'PlotRaw','PlotSem']
-    writer = csv.DictWriter(csvfile, fieldnames=fieldNames)
-    writer.writeheader()
-    vis.csvwriter = writer
-
-    # run the visualizer
-    vis.run()

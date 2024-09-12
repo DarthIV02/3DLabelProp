@@ -18,11 +18,13 @@ class LaserScanVis:
                verbose_runtime=False,   #if True, will print time taken to load/plot data
                csvwriter=None,          #writes timedata to external file
                pullData=None,           #callable for extracting data to plot
-               percent_points = 1.0):
+               percent_points = 1.0,
+               inference_model = None):
     self.semantics = semantics
     self.predictions = predictions
     self.percent_points = percent_points
     self.pullData = pullData
+    self.inference_model = inference_model
 
     # useful for determining runtime data, not required
     self.csvwriter = csvwriter
@@ -49,12 +51,15 @@ class LaserScanVis:
     for key, value in sem_color_dict.items():
         self.sem_color_lut[key] = np.array(value, np.float32) / 255.0
 
+    self.i = 0
+
     self.reset()
-    self.next_scan()
+    pc, labels = self.inference_model.compute_sequence(0,0)
+    self.next_scan(pc, labels)
 
   # method for clock event callback
-  def next_scan(self, event=None):
-    data = self.prep_data(self.pullData())
+  def next_scan(self, points, labels, time_x=None, event=None):
+    data = self.prep_data(points, labels, labels, time_x)
     self.update_scan(data)
 
   def reset(self):
@@ -196,6 +201,8 @@ class LaserScanVis:
   def key_press(self, event):
     self.canvas.events.key_press.block()
     if event.key == 'N' and not self.clock.running:
+      self.i += 1
+      self.inference_model.compute_sequence(0, self.i)
       self.next_scan()
     elif event.key == 'Q' or event.key == 'Escape':
       self.destroy()
