@@ -282,10 +282,10 @@ class InferenceDataset:
         return file_list
 
     def compute_sequence(self,seq_number, frame_i=None):
-        if osp.exists(osp.join(self.save,f'HD_{self.config.hd_block_stop}',self.trg_datast.sequence[seq_number], 'Pred.h5')): # This was commented to reduce the amount of times that the data is calculated
-            print("Skip")
-            print(osp.join(self.save,self.trg_datast.sequence[seq_number]))
-            return True 
+        #if osp.exists(osp.join(self.save,f'HD_{self.config.hd_block_stop}',self.trg_datast.sequence[seq_number], 'Pred.h5')): # This was commented to reduce the amount of times that the data is calculated
+        #    print("Skip")
+        #    print(osp.join(self.save,self.trg_datast.sequence[seq_number]))
+        #    return True 
         os.makedirs(osp.join(self.save,f'HD_{self.config.hd_block_stop}',self.trg_datast.sequence[seq_number]),exist_ok=True)
 
         #init accumulated arrays
@@ -402,6 +402,7 @@ class InferenceDataset:
                         return None
 
             else:
+            
                 pointcloud, label = self.trg_datast.loader(seq,frame_i)
 
                 local_rot, local_trans = rot[frame_i], trans[frame_i]
