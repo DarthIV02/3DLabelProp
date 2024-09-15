@@ -4,7 +4,7 @@ apt-get -y install liblapack-dev
 apt-get -y install libblas-dev
 apt-get -y install libarmadillo-dev
 apt-get -y install qt5-default
-#apt-get -y install cmake libopenblas-dev liblapack-dev libarpack2-de libsuperlu-dev libensmallen-dev
+apt-get -y install cmake libopenblas-dev liblapack-dev libarpack2-de libsuperlu-dev libensmallen-dev
 #apt-get -y install gcc-10.2 g++-10.2
 apt-get -y install libomp-dev
 apt-get -y install libcereal-dev libstb-dev
