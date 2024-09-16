@@ -22,7 +22,7 @@ cd cpp_wrappers
 bash compile_wrappers.sh
 pip install --force-reinstall torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu117
 conda install -c torchhd torchhd
-export LD_LIBRARY_PATH=/root/anaconda3/envs/3DLabelProp/lib:$LD_LIBRARY_PATH
+#export LD_LIBRARY_PATH=/root/anaconda3/envs/3DLabelProp/lib:$LD_LIBRARY_PATH
 # OR export LD_LIBRARY_PATH=/home/ubuntu/anaconda3/envs/3DLabelProp/lib:$LD_LIBRARY_PATH
 
 
