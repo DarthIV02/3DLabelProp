@@ -10,7 +10,6 @@
 #include <pybind11/stl.h>
 #include <random>
 #include <mlpack.hpp>
-#include <type_traits>
 
 namespace py = pybind11;
 using namespace mlpack::kmeans;
@@ -216,7 +215,7 @@ std::vector<std::vector<int>> make_clusters(py::array_t<double> accumulated_poin
         }
 
         arma::Row<size_t> assignments;
-        KMeans<> k;
+        KMeans<> k(20);
         k.Cluster(data, n_cluster, assignments);
 
         //Get limit of pointcloud
