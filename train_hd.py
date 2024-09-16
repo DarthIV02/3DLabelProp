@@ -46,6 +46,10 @@ if __name__ == "__main__":
         target_data_cfg = OmegaConf.load(osp.join(cfg.data_cfg_path,cfg.target+".yaml"))
         train_set_2 = Pandaset(target_data_cfg,'train')
         target_set = Pandaset(target_data_cfg,'valid')
+    elif "paris" in cfg.target:
+        target_data_cfg = OmegaConf.load(osp.join(cfg.data_cfg_path,cfg.target+".yaml"))
+        train_set_2 = Paris(target_data_cfg,'train')
+        target_set = Paris(target_data_cfg,'valid')
     
     else:
         raise  NameError('target dataset not supported')
