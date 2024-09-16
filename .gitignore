@@ -5,6 +5,5 @@
 wandb
 results/
 *.npy
-*.pth
 *.json
 *.pkl
