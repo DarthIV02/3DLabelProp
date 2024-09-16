@@ -9,7 +9,6 @@
 #include <mlpack/methods/kmeans/kmeans.hpp>
 #include <pybind11/stl.h>
 #include <random>
-#include <mlpack.hpp>
 
 namespace py = pybind11;
 using namespace mlpack::kmeans;
