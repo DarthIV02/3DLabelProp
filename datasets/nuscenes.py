@@ -40,7 +40,6 @@ class nuScenes(PointCloudDataset):
 
         nusc = NuScenes(version='v1.0-trainval', dataroot=self.path, verbose=True)
         scene2label = {}
-        print(nusc.scene)
         for sc in nusc.scene:
             scene2label[sc['name']] = {}
             file = []
@@ -58,7 +57,7 @@ class nuScenes(PointCloudDataset):
             scene2label[sc['name']]['label'] = labels
 
         import json 
-        with open(self.path+'/v1.0-mini/scene2label.json','w') as fp:
+        with open(self.path+'/v1.0-trainval/scene2label.json','w') as fp:
             json.dump(scene2label,fp)
 
     def loader(self, seq, idx):
