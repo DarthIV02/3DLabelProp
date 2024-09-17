@@ -90,7 +90,6 @@ class nuScenes(PointCloudDataset):
         return self.scenes[self.sequence[seq_number]]
 
     def get_size_seq(self, seq_number):
-        print(self.scenes.keys())
         return len(self.scenes[self.sequence[seq_number]]['label'])
 
     def get_poses_seq(self, seq_number):
