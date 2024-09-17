@@ -1,28 +1,28 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: label-hd-sm
+  name: label-hd-test
   labels:
-    k8s-app: label-hd-sm
+    k8s-app: label-hd-test
 spec:
   replicas: 1
   selector:
     matchLabels:
-      k8s-app: label-hd-sm
+      k8s-app: label-hd-test
   template:
     metadata: 
       labels:
-        k8s-app: label-hd-sm
+        k8s-app: label-hd-test
     spec:
       containers:
-      - name: label-hd-sm
+      - name: label-hd-test
         image: nvidia/cuda:11.1.1-cudnn8-devel-ubuntu18.04
         command: ["sleep", "infinity"]
         volumeMounts:
           - mountPath: /mnt/data
             name: data
           - mountPath: /root/main
-            name: small-ivannia-volume
+            name: ivannia-volume
           - mountPath: /dev/shm
             name: cache-volume
         resources:
@@ -35,9 +35,9 @@ spec:
              cpu: "1"
              ephemeral-storage: "512Gi"
       volumes:
-        - name: small-ivannia-volume
+        - name: ivannia-volume
           persistentVolumeClaim:
-            claimName: small-ivannia-volume
+            claimName: ivannia-volume
         - name: data
           emptyDir: {}
         - emptyDir:
