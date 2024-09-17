@@ -133,7 +133,7 @@ class SemanticSegmentationModel:
         self.config = config
         self.helper_function = PointCloudDataset('token', self.model_config)
         self.helper_function.config = self.model_config
-        self.path = join(self.config.cluster.path,self.config.source,self.config.cluster.name)
+        self.path = join(self.config.cluster.path, self.config.cluster.name)
         #print("HERRRRREEE")
         #print(self.config.cluster.path)
         self.batch_limit = torch.tensor([1], dtype=torch.float32)
