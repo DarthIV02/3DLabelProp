@@ -434,7 +434,7 @@ class InferenceDataset:
         accumulated_confidence = np.empty(0, dtype=np.float)
 
         #get slam poses
-        rot, trans = self.trg_datast.get_poses_seq(seq_number)
+        #rot, trans = self.trg_datast.get_poses_seq(seq_number)
 
         #get sequence information
         len_seq = self.trg_datast.get_size_seq(seq_number)
@@ -455,13 +455,13 @@ class InferenceDataset:
                     if st_real: # 
                         #raise Exception("Just one for now") # This needs to be removed
                         #Check if the sensor moved more than min_dist_mvt
-                        if np.linalg.norm(local_trans - trans[frame-lastIndex]) < self.config.sequence.min_dist_mvt:
-                            accumulated_pointcloud = accumulated_pointcloud[:-len(pointcloud)]
-                            accumulated_confidence = accumulated_confidence[:-len(pointcloud)]
-                            local_limit += 1
-                            lastIndex += 1
-                        else:
-                            lastIndex =1
+                        #if np.linalg.norm(local_trans - trans[frame-lastIndex]) < self.config.sequence.min_dist_mvt:
+                        #    accumulated_pointcloud = accumulated_pointcloud[:-len(pointcloud)]
+                        #    accumulated_confidence = accumulated_confidence[:-len(pointcloud)]
+                        #    local_limit += 1
+                        #    lastIndex += 1
+                        #else:
+                        lastIndex =1
 
                         #voxelize the past sequence and remove old points
                         if len(accumulated_pointcloud) > 0:
@@ -469,11 +469,11 @@ class InferenceDataset:
                             accumulated_confidence = accumulated_confidence[accumulated_pointcloud[:,-1] > frame - local_limit]
                             accumulated_pointcloud = accumulated_pointcloud[accumulated_pointcloud[:,-1] > frame - local_limit]
 
-                    local_rot, local_trans = rot[frame], trans[frame]
+                    #local_rot, local_trans = rot[frame], trans[frame]
 
                     #add channel for semantic and for timestamp
                     pointcloud = np.hstack((pointcloud[:,:4],label.reshape(-1,1),np.zeros(len(pointcloud)).reshape(-1,1)+frame)) # np.zeros(len(pointcloud)).reshape(-1,1)-1
-                    pointcloud = apply_transformation(pointcloud, (local_rot, local_trans))
+                    #pointcloud = apply_transformation(pointcloud, (local_rot, local_trans))
 
                     #remove accumulated points too far from the center
                     if len(accumulated_pointcloud)>0:
