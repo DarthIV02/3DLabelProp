@@ -20,5 +20,5 @@ trainer:
   resume: 0
 logger:
   run_name: debug
-  save_path: /root/main/3DLabelProp/hd_test
+  save_path: /home/3DLabelProp/saved_models
   model_name: best_mIoU_kp_sk.pth # change for the one in nuscenes (semkitti is best_kp_sk)
