@@ -20,5 +20,5 @@ trainer:
   resume: 0
 logger:
   run_name: debug
-  save_path: /root/main/3DLabelProp/semantickitti
-  model_name: best_kp_sk.pth # change for the one in nuscenes
+  save_path: /root/main/3DLabelProp/hd_test
+  model_name: best_mIoU_kp_sk.pth # change for the one in nuscenes (semkitti is best_kp_sk)
