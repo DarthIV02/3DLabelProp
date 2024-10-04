@@ -418,6 +418,7 @@ class InferenceDataset:
                         accumulated_pointcloud = accumulated_pointcloud[accumulated_pointcloud[:,-1] > frame - local_limit]
 
                 if index > self.config.logger.buffer: # Erase past pointcloud the amount of pointclouds specified in the buffer
+                    print("RESET")
                     accumulated_pointcloud = accumulated_pointcloud[past_len:]
                     accumulated_confidence = accumulated_confidence[past_len:]
 
