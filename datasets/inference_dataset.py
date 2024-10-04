@@ -69,7 +69,7 @@ def infer_concat_kp(model,clusters,device,config_model,batch_size): # This is th
         r_clouds, r_inds_list = model.prepare_data(sub_clusters,False,True)
         if 'cuda' in device.type:
             r_clouds.to(device)
-        outputs = smax(model.model(r_clouds, config_model, config_data, hd_model, labels)) # This are the individual predictions
+        outputs = smax(model.model(r_clouds, config_model)) # This are the individual predictions HD , config_data, hd_model, labels
         pred = outputs.detach().cpu().numpy()
         del outputs
         preds = []
@@ -196,7 +196,8 @@ class InferenceDataset:
             seq = self.val_set.sequence[seq]
             #seq_path = osp.join(self.save, seq)
             #print(self.trg_datast.get_size_seq(int(0)))
-            conf_mat += confmat_computations_parallel(os.path.join(self.save, f'HD_{self.config.hd_block_stop}', seq, name), file_list, np.arange(0,n_labels),20,source_mapping=source_mapping,target_mapping=target_mapping)
+            # HD , name
+            conf_mat += confmat_computations_parallel(os.path.join(self.save, f'HD_{self.config.hd_block_stop}', seq), file_list, np.arange(0,n_labels),20,source_mapping=source_mapping,target_mapping=target_mapping)
         else:
             for i in range(len(self.trg_datast.sequence)):
                 seq = self.trg_datast.sequence[i]
@@ -369,6 +370,7 @@ class InferenceDataset:
                 return pointcloud[:, 0:3], to_save[:, 0], to_save[:,-1] """
         
         if osp.exists(osp.join(self.save,self.trg_datast.sequence[seq_number])):
+            print("RETURN")
             return True 
         os.makedirs(osp.join(self.save,self.trg_datast.sequence[seq_number]),exist_ok=True)
 
