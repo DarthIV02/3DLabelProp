@@ -369,9 +369,10 @@ class InferenceDataset:
                 #st_real = True
                 return pointcloud[:, 0:3], to_save[:, 0], to_save[:,-1] """
         
-        if osp.exists(osp.join(self.save,self.trg_datast.sequence[seq_number])):
-            print("RETURN")
-            return True 
+        #if osp.exists(osp.join(self.save,self.trg_datast.sequence[seq_number])):
+        #    print(osp.)
+        #    print("RETURN")
+        #    return True 
         os.makedirs(osp.join(self.save,self.trg_datast.sequence[seq_number]),exist_ok=True)
 
         #init accumulated arrays
