@@ -20,5 +20,6 @@ trainer:
   resume: 0
 logger:
   run_name: debug
+  buffer: 5000
   save_path: /home/3DLabelProp/saved_models
-  model_name: best_mIoU_kp_sk.pth # change for the one in nuscenes (semkitti is best_kp_sk)
+  model_name: best_kp_sk.pth # change for the one in nuscenes best_mIoU_kp_sk.pth

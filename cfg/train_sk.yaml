@@ -1,4 +1,4 @@
-source: nuscenes
+source: nuscenes-mini
 target: semantickitti 
 cluster_cfg: ./cfg/clust_cfg/cluster_20.yaml
 model_cfg: ./cfg/model_cfg/kpconv.yaml

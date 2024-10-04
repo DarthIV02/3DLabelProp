@@ -338,7 +338,7 @@ class KPFCNN(nn.Module):
 
     def forward(self, batch, config, config_data, hd_model=None, labels=None):
 
-        # Get input features
+        """ # Get input features
         x = batch.features.clone().detach()
 
         # Loop over consecutive blocks
@@ -367,9 +367,30 @@ class KPFCNN(nn.Module):
 
         del x
         del encoded
-        torch.cuda.empty_cache()
+        torch.cuda.empty_cache() 
 
-        return y
+        return y"""
+
+        # Get input features
+        x = batch.features.clone().detach()
+
+        # Loop over consecutive blocks
+        skip_x = []
+        for block_i, block_op in enumerate(self.encoder_blocks):
+            if block_i in self.encoder_skips:
+                skip_x.append(x)
+            x = block_op(x, batch)
+
+        for block_i, block_op in enumerate(self.decoder_blocks):
+            if block_i in self.decoder_concats:
+                x = torch.cat([x, skip_x.pop()], dim=1)
+            x = block_op(x, batch)
+
+        # Head of network
+        x = self.head_mlp(x, batch)
+        x = self.head_softmax(x, batch)
+
+        return x
     
     def train_hd(self, batch, config, config_data, hd_model=None, labels=None):
 

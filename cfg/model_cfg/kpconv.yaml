@@ -3,7 +3,7 @@ architecture:
   type: KPFCNN #Config to fetch
   n_features: 1
 trainer:
-  epoch: 500000
+  epoch: 1000
   batch_size: 8
   lr: 0.02
   min_lr: 0.001
@@ -19,6 +19,7 @@ trainer:
   step_size: 750
   resume: 0
 logger:
-  run_name: debug
-  save_path: /root/main/3DLabelProp/results
-  model_name: kp_sk.pth
+  run_name: debug_0
+  steps_before: 0
+  save_path: /saved_models
+  model_name: kp_nuscenes_0.pth
