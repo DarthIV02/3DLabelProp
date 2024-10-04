@@ -206,7 +206,6 @@ class InferenceDataset:
         return ius, miu
 
     def compute_dataset(self):
-        print("Sequence: ", self.trg_datast.sequence)
         for i in tqdm(range(len(self.trg_datast.sequence)),desc="Processing dataset "+str(self.config.target)):
             self.compute_sequence(i)
 
