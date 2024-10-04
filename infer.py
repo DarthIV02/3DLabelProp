@@ -20,7 +20,7 @@ if __name__ == "__main__":
         source_data_cfg = OmegaConf.load(osp.join(cfg.data_cfg_path,"semantic-kitti.yaml"))
         train_set = SemanticKITTI(source_data_cfg,'valid')
     elif cfg.source == "nuscenes":
-        source_data_cfg = OmegaConf.load(osp.join(cfg.data_cfg_path,"nuscenes.yaml"))
+        source_data_cfg = OmegaConf.load(osp.join(cfg.data_cfg_path,"nuscenes_mini.yaml"))
         train_set = nuScenes(source_data_cfg,'valid')
     else:
         raise  NameError('source dataset not supported')
@@ -29,7 +29,7 @@ if __name__ == "__main__":
         target_data_cfg = OmegaConf.load(osp.join(cfg.data_cfg_path,"semantic-kitti.yaml"))
         val_set = SemanticKITTI(target_data_cfg,'valid')
     elif cfg.target == "nuscenes":
-        target_data_cfg = OmegaConf.load(osp.join(cfg.data_cfg_path,"nuscenes.yaml"))
+        target_data_cfg = OmegaConf.load(osp.join(cfg.data_cfg_path,"nuscenes_mini.yaml"))
         val_set = nuScenes(target_data_cfg,'valid')
     elif cfg.target == "semanticposs":
         target_data_cfg = OmegaConf.load(osp.join(cfg.data_cfg_path,"semanticposs.yaml"))
