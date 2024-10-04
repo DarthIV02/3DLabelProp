@@ -172,7 +172,8 @@ class InferenceDataset:
 
         color_dict = trg_datast.color_map
 
-    def compute_results(self, name, file_list=None, seq=None):
+    def compute_results(self):
+        # HD self, name, file_list=None, seq=None
         if self.config.target == "semantickitti":
             from mapping.sk import map
         elif self.config.target == "nuscenes":
