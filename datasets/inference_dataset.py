@@ -371,6 +371,7 @@ class InferenceDataset:
         accumulated_pointcloud = np.empty((0,6))
         accumulated_confidence = np.empty(0, dtype=np.float)
         past_len = 0
+        index = 0
 
         #get slam poses
         rot, trans = self.trg_datast.get_poses_seq(seq_number)
@@ -383,6 +384,8 @@ class InferenceDataset:
         lastIndex = 1
         local_limit = self.config.sequence.limit_GT_time
         start = [i for i in range(self.config.subsample)]
+    
+        print("Start:", start)
         #len_seq = 1000
         for st in start:
             for frame in tqdm(range(st,len_seq,len(start)),leave=False,desc="Sequence: " + str(self.trg_datast.sequence[seq_number]) + ", subsample number " +str(st+1)+"/"+str(len(start))):
@@ -406,7 +409,7 @@ class InferenceDataset:
                         accumulated_confidence = accumulated_confidence[accumulated_pointcloud[:,-1] > frame - local_limit]
                         accumulated_pointcloud = accumulated_pointcloud[accumulated_pointcloud[:,-1] > frame - local_limit]
 
-                if frame > self.config.logger: # Erase past pointcloud the amount of pointclouds specified in the buffer
+                if index > self.config.logger: # Erase past pointcloud the amount of pointclouds specified in the buffer
                     accumulated_pointcloud = accumulated_pointcloud[past_len:]
                     accumulated_confidence = accumulated_confidence[past_len:]
 
@@ -466,7 +469,10 @@ class InferenceDataset:
                 to_save[:,0] = accumulated_pointcloud[-len(pointcloud):,4].astype(np.int32)
                 to_save[:,-1] = label.astype(np.int32)
                 np.save(osp.join(self.save, seq, str(frame)+'.npy'), to_save)
+                
+                # change for buffer
                 past_len = len(pointcloud)
+                index += 1
 
     def train_hd_sequence(self,seq_number):
 
