@@ -147,7 +147,7 @@ class InferenceDataset:
         self.ref_dataset = ref_dataset 
         self.trg_datast = trg_datast 
         self.save = osp.join(self.config.save_pred_path,self.trg_datast.config.data.name) # self.config.logger.model_name
-        self.n_label = self.trg_datast.get_n_label()
+        self.n_label = self.ref_dataset.get_n_label() #HD trg_datast
         self.model = model 
         if torch.cuda.is_available():
             self.device = torch.device("cuda:0")
