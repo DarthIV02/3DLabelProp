@@ -400,7 +400,6 @@ class InferenceDataset:
                 print(frame)
                 x = input("\nEnter")
                 print("\n")
-                print(start)
                 if frame>st:
                     #Check if the sensor moved more than min_dist_mvt
                     if np.linalg.norm(local_trans - trans[frame-lastIndex]) < self.config.sequence.min_dist_mvt:
@@ -447,7 +446,7 @@ class InferenceDataset:
                 print("Conf:", accumulated_confidence.shape)
                 print("Pc:", accumulated_pointcloud.shape)
                 accumulated_pointcloud = np.vstack((accumulated_pointcloud,pointcloud))
-                accumulated_confidence = np.concatenate((accumulated_confidence,np.zeros(len(pointcloud))))
+                accumulated_confidence = np.concatenate((accumulated_confidence,np.zeros((len(pointcloud),1))))
 
                 acc_label = np.copy(accumulated_pointcloud[:,4].astype(np.int32))
                 acc_label, new_conf = compute_labels(accumulated_pointcloud, acc_label, accumulated_confidence, len(pointcloud), self.config.sequence.voxel_size, self.n_label, self.config.source, self.config.sequence.dist_prop)
