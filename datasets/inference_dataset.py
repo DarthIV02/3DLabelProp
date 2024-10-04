@@ -69,7 +69,7 @@ def infer_concat_kp(model,clusters,device,config_model,batch_size): # This is th
         r_clouds, r_inds_list = model.prepare_data(sub_clusters,False,True)
         if 'cuda' in device.type:
             r_clouds.to(device)
-        outputs = smax(model.model(r_clouds, config_model)) # This are the individual predictions HD , config_data, hd_model, labels
+        outputs = smax(model.model(r_clouds, config_model)) # This are the individual predictions HD , config_model, config_data, hd_model, labels
         pred = outputs.detach().cpu().numpy()
         del outputs
         preds = []
