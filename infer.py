@@ -71,7 +71,7 @@ if __name__ == "__main__":
     #    ius, miu = valid_dataset.compute_results()
     #except:
     valid_dataset.compute_dataset()
-    ius, miu = valid_dataset.compute_results("Hi")
+    ius, miu = valid_dataset.compute_results()
     print(ius)
     print(miu)
 

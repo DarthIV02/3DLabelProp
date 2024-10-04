@@ -36,7 +36,8 @@ def per_class_iu(hist):
     with np.errstate(divide='ignore', invalid='ignore'):
         return np.diag(hist) / (hist.sum(1) + hist.sum(0) - np.diag(hist))
 
-def confmat_computations_parallel(frame_full, frame_list, label_list=np.arange(-1,19),n_process=16,source_mapping=None,target_mapping=None):
+def confmat_computations_parallel(frame_list,label_list=np.arange(-1,19),n_process=20,source_mapping=None,target_mapping=None):
+    # HD frame_full, frame_list, label_list=np.arange(-1,19),n_process=16,source_mapping=None,target_mapping=None
     # n_process was originally 20
     global compute_conf_mat
     def compute_conf_mat(frame):
@@ -198,10 +199,11 @@ class InferenceDataset:
         else:
             for i in range(len(self.trg_datast.sequence)):
                 seq = self.trg_datast.sequence[i]
-                #seq_path = osp.join(self.save, seq)
+                seq_path = osp.join(self.save, seq)
                 #print(self.trg_datast.get_size_seq(int(0)))
-                file_list = [f'{f}' for f in range(self.trg_datast.get_size_seq(0))]
-                conf_mat += confmat_computations_parallel(os.path.join(self.save, f'HD_{self.config.hd_block_stop}', seq, name), file_list, np.arange(0,n_labels),20,source_mapping=source_mapping,target_mapping=target_mapping)
+                file_list = [os.path.join(seq_path,f) for f in  os.listdir(seq_path)]# HD [f'{f}' for f in range(self.trg_datast.get_size_seq(0))]
+                conf_mat += confmat_computations_parallel(file_list, np.arange(0,n_labels),20,source_mapping=source_mapping,target_mapping=target_mapping)
+                # HD os.path.join(self.save, f'HD_{self.config.hd_block_stop}', seq, name), file_list, np.arange(0,n_labels),20,source_mapping=source_mapping,target_mapping=target_mapping
         ius = per_class_iu(conf_mat)
         miu = np.nanmean(ius)
         return ius, miu
