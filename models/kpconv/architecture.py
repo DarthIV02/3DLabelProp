@@ -336,7 +336,7 @@ class KPFCNN(nn.Module):
 
         return
 
-    def forward(self, batch, config, config_data, hd_model=None, labels=None):
+    def forward(self, batch): # HD config, config_data, hd_model=None, labels=None
 
         """ # Get input features
         x = batch.features.clone().detach()
