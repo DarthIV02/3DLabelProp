@@ -59,6 +59,7 @@ def confmat_computations_parallel(frame_full, frame_list, label_list=np.arange(-
     return cmat
 
 def infer_concat_kp(model,clusters,device,config_model,batch_size): # This is the model that runs the inference
+    # With HD model,clusters,device,config_model,batch_size,config_data, hd_model=None, labels=None
     smax = torch.nn.Softmax(dim=1)
     cluster_outputs_proba = []
     for k in range(len(clusters)//batch_size+(len(clusters)%batch_size!=0)):
