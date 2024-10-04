@@ -461,7 +461,7 @@ class InferenceDataset:
 
 
                 total_pred = self.infer_concat(self.model,[accumulated_pointcloud[c] for c in clusters],self.device,self.cfg_model,1)
-                print(total_pred.shape)
+                print(total_pred[0].shape)
                 print(self.n_label)
                 predicted_cloudwise = np.zeros((len(accumulated_pointcloud),self.n_label+1))
                 for i in range(len(clusters)):
