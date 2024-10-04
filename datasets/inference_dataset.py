@@ -400,7 +400,7 @@ class InferenceDataset:
                 print(frame)
                 x = input("\nEnter")
                 print("\n")
-                print(frame)
+                print(start)
                 if frame>st:
                     #Check if the sensor moved more than min_dist_mvt
                     if np.linalg.norm(local_trans - trans[frame-lastIndex]) < self.config.sequence.min_dist_mvt:
