@@ -159,12 +159,12 @@ class InferenceDataset:
         self.model.model.eval()
         self.cfg_model = config_model
         if self.config.architecture.model == "KPCONV":
-            if config.train_hd:
-                self.infer_concat_train = train_hd_concat_kp
+            #if config.train_hd:
+            #    self.infer_concat_train = train_hd_concat_kp
             self.infer_concat = infer_concat_kp
         elif self.config.architecture.model == "KPCONV":
             self.infer_concat = infer_concat_spv
-        self.hd_model = hd_model
+        #self.hd_model = hd_model
         if val_set:
             self.val_set = val_set
 
