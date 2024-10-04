@@ -387,7 +387,9 @@ class InferenceDataset:
         for st in start:
             for frame in tqdm(range(st,len_seq,len(start)),leave=False,desc="Sequence: " + str(self.trg_datast.sequence[seq_number]) + ", subsample number " +str(st+1)+"/"+str(len(start))):
                 print(frame)
-                x = input("Enter")
+                x = input("\nEnter")
+                print("\n")
+                print(frame)
                 if frame>st:
                     #Check if the sensor moved more than min_dist_mvt
                     if np.linalg.norm(local_trans - trans[frame-lastIndex]) < self.config.sequence.min_dist_mvt:
