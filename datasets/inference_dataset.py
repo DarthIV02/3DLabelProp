@@ -377,7 +377,7 @@ class InferenceDataset:
 
         #init accumulated arrays
         accumulated_pointcloud = np.empty((0,6))
-        accumulated_confidence = np.empty(0, dtype=np.float)
+        accumulated_confidence = np.empty((0, 1), dtype=np.float)
         past_len = 0
         index = 0
 
